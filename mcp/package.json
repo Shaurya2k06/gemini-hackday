@@ -1,0 +1,19 @@
+{
+  "name": "zoron-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP server exposing the Zoron PE discovery pipeline",
+  "main": "src/index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test --test-timeout=60000 tests/*.test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "zod": "3.25.76"
+  }
+}

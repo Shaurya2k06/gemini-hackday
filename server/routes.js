@@ -10,6 +10,7 @@ import {
   extractCustomColumn,
 } from "./src/chatbot/index.js";
 import { handleThesisPdfParse } from "./src/chatbot/thesis-parse.js";
+import { normalizeExportCompanies } from "./src/chatbot/export-normalize.js";
 import multer from "multer";
 
 const thesisUpload = multer({
@@ -222,31 +223,5 @@ export function registerApiRoutes(app) {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
     res.send(Buffer.from(result.pdf, "binary"));
-  });
-}
-
-function normalizeExportCompanies(companies) {
-  if (!Array.isArray(companies)) return [];
-  return companies.map((item, idx) => {
-    if (item?.company) return item;
-    if (item?.fields) {
-      return {
-        rank: item.rank ?? idx + 1,
-        company: {
-          ...item.fields,
-          investment_summary: item.investment_summary,
-          enrichment_sources: item.enrichment_sources,
-          sources_found: item.sources,
-        },
-        investment_summary: item.investment_summary,
-        enrichment_sources: item.enrichment_sources,
-      };
-    }
-    return {
-      rank: idx + 1,
-      company: item,
-      investment_summary: item.investment_summary,
-      enrichment_sources: item.enrichment_sources,
-    };
   });
 }

@@ -8,6 +8,7 @@ Stateless AI discovery for Private Equity: build a mandate, review a 10-company 
 |-----------|--------|
 | API | Express (`server/`) |
 | UI | React + Vite (`client/`) |
+| MCP server | `@modelcontextprotocol/sdk` over stdio (`mcp/`) |
 | Database | Neon PostgreSQL |
 | Light Agent | OpenAI `gpt-4o-mini` |
 | Discovery + enrichment | OpenAI `gpt-5-search-api` (`HEAVY_LLM_MODEL`) |
@@ -56,10 +57,21 @@ cd client && VITE_API_URL=https://your-api-domain.com npm run build
 | `server/` | `SKIP_HEAVY_SEARCH` | No | Skip live heavy search when `true` |
 | `client/` | `VITE_API_URL` | Yes | API origin, no trailing slash (e.g. `http://localhost:3001`) |
 
+## MCP server
+
+`mcp/` exposes the discovery pipeline as MCP tools so an MCP host (Claude Desktop, Kiro, Cursor) can drive Zoron directly. It imports `server/src/` in-process — no Express, no database, only the LLM API key.
+
+```bash
+cd mcp && npm install
+```
+
+See [`mcp/README.md`](mcp/README.md) for host configuration and the tool reference.
+
 ## Tests
 
 ```bash
 cd server && npm test
+cd mcp && npm test
 ```
 
 ## Repository layout
@@ -67,6 +79,7 @@ cd server && npm test
 ```
 client/     React UI (mandate → results → company dive)
 server/     Express API + pipeline source (`server/src/`)
+mcp/        MCP server over stdio, wrapping the pipeline in-process
 ```
 
-Dependencies are installed separately in `client/` and `server/` — there is no root `package.json`.
+Dependencies are installed separately in `client/`, `server/` and `mcp/` — there is no root `package.json`.
