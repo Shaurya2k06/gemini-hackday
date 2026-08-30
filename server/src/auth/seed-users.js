@@ -20,8 +20,7 @@ export async function seedDemoUsers() {
 
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
     if (existing) {
-      existing.passwordHash = passwordHash;
-      await existing.save();
+      await User.updatePassword(existing.id, passwordHash);
       updated += 1;
     } else {
       await User.create({ username, passwordHash });
