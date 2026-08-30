@@ -477,7 +477,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
           type="button"
           onClick={() => setAddMoreOpen(true)}
           disabled={disabled || parsing}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border border-dashed border-[#dfdcd5] dark:border-[#444] text-[#595855] dark:text-[#a0a0a0] hover:border-black/30 dark:hover:border-white/30 bg-transparent cursor-pointer disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] border border-dashed border-ink/25 text-secondary hover:border-ink/50 hover:text-ink bg-transparent cursor-pointer disabled:opacity-40 transition-colors"
         >
           <Plus size={12} />
           Anything else you&apos;d like to add?
@@ -485,7 +485,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
       ) : null}
 
       {showMainInput && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#dfdcd5] dark:border-[#333] bg-white dark:bg-[#161616] px-2 py-2">
+        <div className="flex items-center gap-2 border border-ink/20 bg-[#fbf7ec] px-2 py-2 focus-within:border-ink/45 transition-colors">
           {showPlusEntry ? (
             <div className="relative shrink-0" ref={plusMenuRef}>
               <button
@@ -495,7 +495,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                 title="Add criteria"
                 aria-expanded={plusMenuOpen}
                 aria-haspopup="menu"
-                className="p-1.5 rounded-lg text-[#595855] dark:text-[#a0a0a0] hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white transition-colors border-none bg-transparent cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-1.5 text-secondary hover:bg-ink/5 hover:text-ink transition-colors border-none bg-transparent cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus size={16} />
               </button>
@@ -507,7 +507,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.16, ease: 'easeOut' }}
-                    className="absolute left-0 bottom-full mb-1 z-20 w-[220px] rounded-lg border border-[#dfdcd5] dark:border-[#333] bg-white dark:bg-[#161616] shadow-lg py-1 origin-bottom"
+                    className="absolute left-0 bottom-full mb-1 z-20 w-[220px] border border-hairline bg-cream shadow-lg py-1 origin-bottom"
                   >
                     <button
                       type="button"
@@ -517,9 +517,9 @@ export const MandateComposer = forwardRef(function MandateComposer(
                         setPlusMenuOpen(false);
                         thesisInputRef.current?.click();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer disabled:opacity-40"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-left text-ink hover:bg-[#fbf7ec] border-none bg-transparent cursor-pointer disabled:opacity-40"
                     >
-                      <FileUp size={14} className="shrink-0 text-[#595855] dark:text-[#808080]" />
+                      <FileUp size={14} className="shrink-0 text-secondary" />
                       Upload PDF
                     </button>
                     <button
@@ -530,9 +530,9 @@ export const MandateComposer = forwardRef(function MandateComposer(
                         setPlusMenuOpen(false);
                         setManualFormOpen(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer disabled:opacity-40"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-left text-ink hover:bg-[#fbf7ec] border-none bg-transparent cursor-pointer disabled:opacity-40"
                     >
-                      <FormInput size={14} className="shrink-0 text-[#595855] dark:text-[#808080]" />
+                      <FormInput size={14} className="shrink-0 text-secondary" />
                       Enter fields manually
                     </button>
                   </motion.div>
@@ -571,7 +571,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                           ? 'Add another criterion…'
                           : placeholder
             }
-            className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm placeholder:text-[#595855]/60 dark:placeholder:text-[#666] disabled:opacity-50 py-1 px-1"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none text-[14px] text-ink placeholder:text-[#8f8b80] disabled:opacity-50 py-1 px-1"
           />
           <button
             type="button"
@@ -598,7 +598,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
       {voiceError ? <p className="text-xs text-amber-700 dark:text-amber-400">{voiceError}</p> : null}
 
       {parseError || thesisParsing ? (
-        <p className="text-xs text-amber-700 dark:text-amber-400">
+        <p className="text-[12px] font-mono text-accent-red">
           {parseError ?? (thesisParsing ? 'Reading investment thesis…' : null)}
         </p>
       ) : null}
@@ -629,7 +629,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                 ? 'Ask'
                 : 'Run search'
           }
-          className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-black text-white dark:bg-white dark:text-black border-none disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-opacity cursor-pointer"
+          className="inline-flex items-center justify-center w-10 h-10 bg-accent-red text-white border-none disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-105 transition-all cursor-pointer"
         >
           <svg
             width="16"
