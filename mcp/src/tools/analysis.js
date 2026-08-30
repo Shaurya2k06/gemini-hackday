@@ -14,7 +14,7 @@ export function registerAnalysisTools(server, store, pipeline) {
 
 function registerCustomColumn(server, store, pipeline) {
   server.registerTool(
-    "zoron_custom_column",
+    "meredian_custom_column",
     {
       title: "Add a researched column to a shortlist",
       description:
@@ -23,7 +23,7 @@ function registerCustomColumn(server, store, pipeline) {
         "'latest acquisition'. Each company is researched individually via live web search, " +
         "so this takes a while. The column persists on the shortlist and is included in exports.",
       inputSchema: {
-        shortlistId: z.string().describe("Id from zoron_discover, e.g. 's1'."),
+        shortlistId: z.string().describe("Id from meredian_discover, e.g. 's1'."),
         query: z
           .string()
           .max(MAX_QUERY_LENGTH, `Keep the question under ${MAX_QUERY_LENGTH} characters.`)
@@ -34,7 +34,7 @@ function registerCustomColumn(server, store, pipeline) {
       },
       annotations: { readOnlyHint: false, openWorldHint: true },
     },
-    guarded("zoron_custom_column", async (args, extra) => {
+    guarded("meredian_custom_column", async (args, extra) => {
       if (!process.env.GEMINI_API_KEY) {
         return errorResult(
           "GEMINI_API_KEY is not set, so custom column research cannot run. Set it in server/.env."
@@ -45,7 +45,7 @@ function registerCustomColumn(server, store, pipeline) {
       if (!entry) {
         throw new McpError(
           ErrorCode.InvalidParams,
-          `No shortlist found with id "${args.shortlistId}". Run zoron_discover first.`
+          `No shortlist found with id "${args.shortlistId}". Run meredian_discover first.`
         );
       }
       if (!entry.cards.length) {
@@ -93,7 +93,7 @@ function registerCustomColumn(server, store, pipeline) {
         );
       }
       lines.push("");
-      lines.push(`Full payload: zoron://shortlist/${args.shortlistId}`);
+      lines.push(`Full payload: meredian://shortlist/${args.shortlistId}`);
 
       return textResult(lines.join("\n"), {
         shortlistId: args.shortlistId,
@@ -103,7 +103,7 @@ function registerCustomColumn(server, store, pipeline) {
         totalCount: merged.length,
         values,
         progressEvents: bridge.count,
-        resourceUri: `zoron://shortlist/${args.shortlistId}`,
+        resourceUri: `meredian://shortlist/${args.shortlistId}`,
       });
     })
   );
@@ -111,13 +111,13 @@ function registerCustomColumn(server, store, pipeline) {
 
 function registerGeneralInfo(server, store, pipeline) {
   server.registerTool(
-    "zoron_general_info",
+    "meredian_general_info",
     {
       title: "Ask a general PE question",
       description:
         "Answer a general private-equity question — concepts, deal-sourcing workflow, " +
         "diligence practice, financial metrics — without running a company search. " +
-        "Use zoron_discover to find companies and zoron_lookup_company for one named company.",
+        "Use meredian_discover to find companies and meredian_lookup_company for one named company.",
       inputSchema: {
         question: z
           .string()
@@ -125,7 +125,7 @@ function registerGeneralInfo(server, store, pipeline) {
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    guarded("zoron_general_info", async (args) => {
+    guarded("meredian_general_info", async (args) => {
       const question = String(args.question ?? "").trim();
       if (!question) {
         throw new McpError(ErrorCode.InvalidParams, "`question` cannot be empty.");

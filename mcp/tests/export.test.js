@@ -13,7 +13,7 @@ import * as realPipeline from "../src/pipeline.js";
  * is to prove the bytes on disk are valid CSV/PDF.
  */
 async function tmpDir() {
-  return fs.mkdtemp(path.join(os.tmpdir(), "zoron-export-test-"));
+  return fs.mkdtemp(path.join(os.tmpdir(), "meredian-export-test-"));
 }
 
 function withCustomColumn(input, label, values) {
@@ -26,7 +26,7 @@ function withCustomColumn(input, label, values) {
   };
 }
 
-test("zoron_export_shortlist writes valid CSV to an explicit path", async () => {
+test("meredian_export_shortlist writes valid CSV to an explicit path", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const dir = await tmpDir();
@@ -34,7 +34,7 @@ test("zoron_export_shortlist writes valid CSV to an explicit path", async () => 
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, format: "csv", outputPath: target },
     });
 
@@ -54,7 +54,7 @@ test("zoron_export_shortlist writes valid CSV to an explicit path", async () => 
   }
 });
 
-test("zoron_export_shortlist writes valid PDF bytes", async () => {
+test("meredian_export_shortlist writes valid PDF bytes", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(2));
   const dir = await tmpDir();
@@ -62,7 +62,7 @@ test("zoron_export_shortlist writes valid PDF bytes", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, format: "pdf", outputPath: target },
     });
 
@@ -92,7 +92,7 @@ test("CSV export includes researched custom columns", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, outputPath: target },
     });
 
@@ -127,14 +127,14 @@ test("export defaults to a timestamped file in the temp directory", async () => 
   let written;
   try {
     const result = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId },
     });
     written = result.structuredContent.path;
 
     assert.equal(result.structuredContent.format, "csv", "csv is the default format");
     assert.ok(written.startsWith(os.tmpdir()), `expected a temp path, got ${written}`);
-    assert.match(written, /zoron-shortlist-\d+\.csv$/);
+    assert.match(written, /meredian-shortlist-\d+\.csv$/);
     await fs.access(written);
   } finally {
     await close();
@@ -161,14 +161,14 @@ test("includeGated adds gated matches to the export", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const withoutGated = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, outputPath: target },
     });
     assert.equal(withoutGated.structuredContent.companyCount, 2);
     assert.doesNotMatch(await fs.readFile(target, "utf8"), /Gated Co/);
 
     const withGated = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, outputPath: target, includeGated: true },
     });
     assert.equal(withGated.structuredContent.companyCount, 3);
@@ -185,8 +185,8 @@ test("relative paths escaping the export directory are refused", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_export_shortlist",
-      arguments: { shortlistId, outputPath: "../../../../etc/zoron-escape.csv" },
+      name: "meredian_export_shortlist",
+      arguments: { shortlistId, outputPath: "../../../../etc/meredian-escape.csv" },
     });
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /escapes the export directory/);
@@ -201,14 +201,14 @@ test("export rejects unknown and empty shortlists", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const unknown = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId: "s99" },
     });
     assert.equal(unknown.isError, true);
     assert.match(unknown.content[0].text, /No shortlist found with id "s99"/);
 
     const empty = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId: emptyId },
     });
     assert.equal(empty.isError, true);
@@ -229,7 +229,7 @@ test("PDF export notes that custom columns are CSV-only", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline: realPipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, format: "pdf", outputPath: target },
     });
     assert.match(result.content[0].text, /custom columns \(CEO\) appear in CSV output only/);

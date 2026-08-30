@@ -88,7 +88,7 @@ function AppRoutes() {
 }
 
 function App() {
-  // Zoron is a committed light editorial brand — the app renders light everywhere
+  // Meredian is a committed light editorial brand — the app renders light everywhere
   // so every page matches the landing page. Dark mode is intentionally disabled.
   useEffect(() => {
     document.documentElement.classList.remove('dark');

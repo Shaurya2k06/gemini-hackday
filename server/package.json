@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Zoron discovery API",
+  "description": "Meredian discovery API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

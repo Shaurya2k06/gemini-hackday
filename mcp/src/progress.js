@@ -1,5 +1,5 @@
 /**
- * Bridge Zoron pipeline progress events onto MCP progress notifications.
+ * Bridge Meredian pipeline progress events onto MCP progress notifications.
  *
  * The pipeline reports work via `onProgress({ step, detail, at })` — the same
  * callback the SSE routes use to drive the web UI. MCP hosts consume progress

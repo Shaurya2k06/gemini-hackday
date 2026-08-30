@@ -24,7 +24,7 @@ function Feature() {
           <div className="flex gap-4 flex-col items-center text-center">
             <div>
               <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 px-3 py-1 text-xs font-semibold tracking-wider uppercase rounded-full">
-                Zoron AI Platform
+                Meredian AI Platform
               </Badge>
             </div>
             <div className="flex gap-2 flex-col max-w-2xl">
@@ -32,7 +32,7 @@ function Feature() {
                 Criteria-Driven Target Screening
               </h2>
               <p className="text-sm md:text-base text-muted-foreground font-normal leading-relaxed">
-                Describe your investment thesis in plain English. Zoron researches the market, vets target companies against financial bands, and builds ranked shortlists.
+                Describe your investment thesis in plain English. Meredian researches the market, vets target companies against financial bands, and builds ranked shortlists.
               </p>
             </div>
           </div>
@@ -40,7 +40,7 @@ function Feature() {
           {/* Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            {/* Tile 1: Zoron AI Landing Page Crunched (lg:col-span-2) */}
+            {/* Tile 1: Meredian AI Landing Page Crunched (lg:col-span-2) */}
             <div className="bg-card border border-border rounded-xl p-6 lg:col-span-2 flex flex-col justify-between transition-all duration-300 hover:shadow-md min-h-[420px] relative overflow-hidden group">
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -54,10 +54,10 @@ function Feature() {
                 
                 <div className="flex flex-col gap-2">
                   <h3 className="text-2xl font-davinci font-medium text-foreground tracking-tight">
-                    Zoron AI PE Sourcing
+                    Meredian AI PE Sourcing
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Our AI-driven engine translates your investment criteria into an active target screening campaign. By scanning the web and matching targets against criteria, Zoron surfaces proprietary, on-thesis deal flow.
+                    Our AI-driven engine translates your investment criteria into an active target screening campaign. By scanning the web and matching targets against criteria, Meredian surfaces proprietary, on-thesis deal flow.
                   </p>
                 </div>
 
@@ -136,7 +136,7 @@ function Feature() {
               <div className="flex flex-col gap-2 mt-4">
                 <h3 className="text-lg font-davinci font-medium text-foreground tracking-tight">Financial Bands</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Size your target profile with custom revenue or EBITDA thresholds. Zoron automatically extracts target criteria and filters out candidates that don't match your ranges.
+                  Size your target profile with custom revenue or EBITDA thresholds. Meredian automatically extracts target criteria and filters out candidates that don't match your ranges.
                 </p>
                 <div className="mt-4 bg-muted/50 rounded-lg p-3 border border-border/50 text-[10px] text-muted-foreground space-y-1">
                   <div className="flex justify-between border-b border-border/30 pb-1 font-medium">
@@ -168,7 +168,7 @@ function Feature() {
               <div className="flex flex-col gap-2 mt-4">
                 <h3 className="text-lg font-davinci font-medium text-foreground tracking-tight">Live Web Scans</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  New screening profiles trigger fresh searches. Zoron scans company websites, press filings, and databases, verifying active domain status and identifying key operations.
+                  New screening profiles trigger fresh searches. Meredian scans company websites, press filings, and databases, verifying active domain status and identifying key operations.
                 </p>
                 <div className="mt-3 flex items-center gap-2 bg-muted/40 rounded-lg p-2 border border-border/40">
                   <span className="relative flex h-2 w-2">

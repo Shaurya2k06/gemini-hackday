@@ -1,7 +1,7 @@
 /**
  * Persist Heavy/Lite discovery constraint mode in sessionStorage.
  */
-const STORAGE_KEY = 'zoron.constraintMode';
+const STORAGE_KEY = 'meredian.constraintMode';
 
 export function normalizeConstraintMode(value) {
   const raw = String(value ?? '')

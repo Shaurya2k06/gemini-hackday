@@ -94,19 +94,19 @@ test("foresight tools are registered", async () => {
   try {
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name);
-    assert.ok(names.includes("zoron_transition_score"));
-    assert.ok(names.includes("zoron_backtest_thesis"));
+    assert.ok(names.includes("meredian_transition_score"));
+    assert.ok(names.includes("meredian_backtest_thesis"));
   } finally {
     await close();
   }
 });
 
-test("zoron_transition_score reports score, band and cited evidence", async () => {
+test("meredian_transition_score reports score, band and cited evidence", async () => {
   const { pipeline, calls } = foresightPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_transition_score",
+      name: "meredian_transition_score",
       arguments: { name: "Kovai.co", domain: "kovai.co", cutoff: "2024-06-30" },
     });
 
@@ -127,12 +127,12 @@ test("zoron_transition_score reports score, band and cited evidence", async () =
   }
 });
 
-test("zoron_transition_score defaults the cutoff to today", async () => {
+test("meredian_transition_score defaults the cutoff to today", async () => {
   const { pipeline, calls } = foresightPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     await client.callTool({
-      name: "zoron_transition_score",
+      name: "meredian_transition_score",
       arguments: { domain: "kovai.co" },
     });
     assert.match(calls[0].args.cutoff, /^\d{4}-\d{2}-\d{2}$/);
@@ -141,12 +141,12 @@ test("zoron_transition_score defaults the cutoff to today", async () => {
   }
 });
 
-test("zoron_transition_score rejects a malformed cutoff", async () => {
+test("meredian_transition_score rejects a malformed cutoff", async () => {
   const { pipeline, calls } = foresightPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_transition_score",
+      name: "meredian_transition_score",
       arguments: { domain: "kovai.co", cutoff: "June 2024" },
     });
     assert.equal(result.isError, true);
@@ -156,7 +156,7 @@ test("zoron_transition_score rejects a malformed cutoff", async () => {
   }
 });
 
-test("zoron_transition_score surfaces extraction failure", async () => {
+test("meredian_transition_score surfaces extraction failure", async () => {
   const { pipeline } = foresightPipeline({
     extractSignalsAsOf: async () => ({
       domain: "x.com",
@@ -171,7 +171,7 @@ test("zoron_transition_score surfaces extraction failure", async () => {
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_transition_score",
+      name: "meredian_transition_score",
       arguments: { domain: "x.com", cutoff: "2024-06-30" },
     });
     assert.equal(result.isError, true);
@@ -181,14 +181,14 @@ test("zoron_transition_score surfaces extraction failure", async () => {
   }
 });
 
-test("zoron_backtest_thesis pulls candidates from a stored shortlist", async () => {
+test("meredian_backtest_thesis pulls candidates from a stored shortlist", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const { pipeline, calls } = foresightPipeline();
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_backtest_thesis",
+      name: "meredian_backtest_thesis",
       arguments: { shortlistId, cutoff: "2024-06-30" },
     });
 
@@ -206,12 +206,12 @@ test("zoron_backtest_thesis pulls candidates from a stored shortlist", async () 
   }
 });
 
-test("zoron_backtest_thesis accepts explicit candidates", async () => {
+test("meredian_backtest_thesis accepts explicit candidates", async () => {
   const { pipeline, calls } = foresightPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     await client.callTool({
-      name: "zoron_backtest_thesis",
+      name: "meredian_backtest_thesis",
       arguments: {
         candidates: [{ name: "Alpha", domain: "alpha.com" }],
         cutoff: "2023-01-01",
@@ -227,19 +227,19 @@ test("zoron_backtest_thesis accepts explicit candidates", async () => {
   }
 });
 
-test("zoron_backtest_thesis requires candidates", async () => {
+test("meredian_backtest_thesis requires candidates", async () => {
   const { pipeline } = foresightPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const missing = await client.callTool({
-      name: "zoron_backtest_thesis",
+      name: "meredian_backtest_thesis",
       arguments: { cutoff: "2024-06-30" },
     });
     assert.equal(missing.isError, true);
     assert.match(missing.content[0].text, /Provide `candidates` or a `shortlistId`/);
 
     const unknown = await client.callTool({
-      name: "zoron_backtest_thesis",
+      name: "meredian_backtest_thesis",
       arguments: { shortlistId: "s99", cutoff: "2024-06-30" },
     });
     assert.equal(unknown.isError, true);

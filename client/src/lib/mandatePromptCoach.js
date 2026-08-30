@@ -1,4 +1,4 @@
-export const PROMPT_COACH_STORAGE_KEY = 'zoron_prompt_coach_seen';
+export const PROMPT_COACH_STORAGE_KEY = 'meredian_prompt_coach_seen';
 
 export const MANDATE_PARAMETER_HINTS = [
   { label: 'Sector', examples: 'B2B SaaS, Fintech, Healthcare, Industrial tech' },

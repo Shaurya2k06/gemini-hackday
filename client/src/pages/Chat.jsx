@@ -268,7 +268,7 @@ function Chat() {
             className="flex items-center gap-2.5 bg-transparent border-none cursor-pointer p-0"
           >
             <Monogram />
-            <span className="font-sans font-bold text-[15px] tracking-tight">Zoron</span>
+            <span className="font-sans font-bold text-[15px] tracking-tight">Meredian</span>
           </button>
         </div>
         <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#8f8b80] hidden sm:inline">

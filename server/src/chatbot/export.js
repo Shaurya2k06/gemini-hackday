@@ -299,7 +299,7 @@ function buildReportBlocks(rankedResults) {
   const generatedAt = new Date().toISOString().slice(0, 10);
   const blocks = [];
 
-  blocks.push({ type: "text", style: "brand", text: "ZORON" });
+  blocks.push({ type: "text", style: "brand", text: "MEREDIAN" });
   blocks.push({ type: "text", style: "title", text: "Target Screening Diligence Report" });
   pushSpacer(blocks, 4);
   blocks.push({
@@ -429,7 +429,7 @@ function buildPageStream(blocks, { pageIndex, pageCount }) {
   ops.push("BT");
   ops.push(`/F1 ${STYLE.footer.size} Tf`);
   ops.push(`1 0 0 1 ${PAGE.marginX} 36 Tm`);
-  ops.push(`(${escapePdfText("Zoron diligence export")}) Tj`);
+  ops.push(`(${escapePdfText("Meredian diligence export")}) Tj`);
   const pageLabel = `Page ${pageIndex + 1} of ${pageCount}`;
   ops.push(`1 0 0 1 ${PAGE.width - PAGE.marginX - pageLabel.length * 4.2} 36 Tm`);
   ops.push(`(${escapePdfText(pageLabel)}) Tj`);

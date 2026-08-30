@@ -10,7 +10,7 @@ const MANDATE_INPUT = {
   mandateId: z
     .string()
     .optional()
-    .describe("Id from zoron_parse_mandate, e.g. 'm1'. Preferred over passing `structured`."),
+    .describe("Id from meredian_parse_mandate, e.g. 'm1'. Preferred over passing `structured`."),
   structured: z
     .record(z.any())
     .optional()
@@ -31,14 +31,14 @@ export function registerDiscoveryTools(server, store, pipeline) {
 
 function registerDiscover(server, store, pipeline) {
   server.registerTool(
-    "zoron_discover",
+    "meredian_discover",
     {
       title: "Discover PE targets",
       description:
         "Run the full discovery pipeline for a mandate and return a ranked company shortlist. " +
         "This is the expensive step — it performs live web search and per-company enrichment, " +
         "and can take a few minutes. Returns a shortlistId for follow-up tools " +
-        "(zoron_expand_shortlist, zoron_deep_dive, zoron_custom_column, zoron_export_shortlist).",
+        "(meredian_expand_shortlist, meredian_deep_dive, meredian_custom_column, meredian_export_shortlist).",
       inputSchema: {
         ...MANDATE_INPUT,
         rawQuery: z
@@ -48,7 +48,7 @@ function registerDiscover(server, store, pipeline) {
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    guarded("zoron_discover", async (args, extra) => {
+    guarded("meredian_discover", async (args, extra) => {
       const { structured, rawQuery } = resolveStructured(store, args);
       const bridge = createProgressBridge(extra);
 
@@ -84,7 +84,7 @@ function registerDiscover(server, store, pipeline) {
         heavySearchRan: entry.heavySearchRan,
         message: entry.message,
         progressEvents: bridge.count,
-        resourceUri: `zoron://shortlist/${shortlistId}`,
+        resourceUri: `meredian://shortlist/${shortlistId}`,
       });
     })
   );
@@ -92,7 +92,7 @@ function registerDiscover(server, store, pipeline) {
 
 function registerExpand(server, store, pipeline) {
   server.registerTool(
-    "zoron_expand_shortlist",
+    "meredian_expand_shortlist",
     {
       title: "Expand an existing shortlist",
       description:
@@ -101,7 +101,7 @@ function registerExpand(server, store, pipeline) {
         "there is no need to list them. Uses the mandate the shortlist was built from unless " +
         "you override it.",
       inputSchema: {
-        shortlistId: z.string().describe("Id from zoron_discover, e.g. 's1'."),
+        shortlistId: z.string().describe("Id from meredian_discover, e.g. 's1'."),
         additionalCount: z
           .number()
           .int()
@@ -113,12 +113,12 @@ function registerExpand(server, store, pipeline) {
       },
       annotations: { readOnlyHint: false, openWorldHint: true },
     },
-    guarded("zoron_expand_shortlist", async (args, extra) => {
+    guarded("meredian_expand_shortlist", async (args, extra) => {
       const entry = store.getShortlist(args.shortlistId);
       if (!entry) {
         throw new McpError(
           ErrorCode.InvalidParams,
-          `No shortlist found with id "${args.shortlistId}". Run zoron_discover first.`
+          `No shortlist found with id "${args.shortlistId}". Run meredian_discover first.`
         );
       }
 
@@ -158,7 +158,7 @@ function registerExpand(server, store, pipeline) {
         lines.push("");
         lines.push(`Shortlist now holds ${updated.cards.length} companies.`);
       }
-      lines.push(`Full payload: zoron://shortlist/${args.shortlistId}`);
+      lines.push(`Full payload: meredian://shortlist/${args.shortlistId}`);
 
       return textResult(lines.join("\n"), {
         shortlistId: args.shortlistId,
@@ -168,7 +168,7 @@ function registerExpand(server, store, pipeline) {
         dataSource: result.dataSource ?? null,
         message: result.message ?? null,
         progressEvents: bridge.count,
-        resourceUri: `zoron://shortlist/${args.shortlistId}`,
+        resourceUri: `meredian://shortlist/${args.shortlistId}`,
       });
     })
   );
