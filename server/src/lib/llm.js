@@ -202,11 +202,33 @@ export async function transcribeAudio({ base64Audio, mimeType, purpose = "voice_
 
 export async function callGeminiSearch({ model, messages, purpose, maxTokens = 16384 }) {
   const start = Date.now();
+
+  // Grounded search spends a large share of the output budget on reasoning
+  // tokens, so this ceiling is deliberately generous: too low a value gets
+  // the company list cut off mid-JSON.
+  const attempt = (useSchema) =>
+    generateContent({
+      model,
+      messages,
+      maxTokens,
+      search: true,
+      schema: useSchema ? schema : undefined,
+    });
+
   try {
-    // Grounded search spends a large share of the output budget on reasoning
-    // tokens, so this ceiling is deliberately generous: too low a value gets
-    // the company list cut off mid-JSON.
-    const response = await generateContent({ model, messages, maxTokens, search: true });
+    let response;
+    try {
+      response = await attempt(Boolean(schema));
+    } catch (error) {
+      // Combining a response schema with tool use is only available on some
+      // models. Fall back to prompt-enforced JSON rather than failing the call.
+      const schemaRejected =
+        schema &&
+        (error.status === 400 || /schema|tool|not supported/i.test(error.message ?? ""));
+      if (!schemaRejected) throw error;
+      response = await attempt(false);
+    }
+
     const finishReason = response.candidates?.[0]?.finishReason ?? null;
     return {
       content: responseText(response),
