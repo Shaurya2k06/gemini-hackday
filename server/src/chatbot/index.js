@@ -10,11 +10,14 @@ export {
 export { answerGeneralInfo } from "./general-info.js";
 export { extractCustomColumn } from "./custom-column.js";
 
-export function exportCompaniesCsv(rankedResults) {
+export function exportCompaniesCsv(rankedResults, { customColumns = [] } = {}) {
   if (!rankedResults?.length) {
     return { error: "No results to export." };
   }
-  return { csv: generateCsv(rankedResults), filename: "pef-discovery-results.csv" };
+  return {
+    csv: generateCsv(rankedResults, { customColumns }),
+    filename: "pef-discovery-results.csv",
+  };
 }
 
 export function exportCompaniesPdf(rankedResults) {
@@ -26,3 +29,4 @@ export function exportCompaniesPdf(rankedResults) {
 
 export { formatCompanyCard } from "./format.js";
 export { generateCsv, generatePdf, isValidCsv, isValidPdf } from "./export.js";
+export { normalizeExportCompanies } from "./export-normalize.js";

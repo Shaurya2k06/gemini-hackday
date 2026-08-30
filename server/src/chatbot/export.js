@@ -30,8 +30,17 @@ function csvEscape(value) {
   return text;
 }
 
-export function generateCsv(rankedResults) {
-  const lines = [CSV_HEADERS.join(",")];
+/**
+ * Render ranked results as CSV.
+ *
+ * @param rankedResults          rows in `{ rank, company }` shape
+ * @param options.customColumns  extra researched column labels to append; values
+ *                               are read from each row's `custom_columns` map.
+ *                               Omitting this preserves the original 19-column output.
+ */
+export function generateCsv(rankedResults, { customColumns = [] } = {}) {
+  const extraColumns = Array.isArray(customColumns) ? customColumns.filter(Boolean) : [];
+  const lines = [[...CSV_HEADERS, ...extraColumns].join(",")];
 
   for (const row of rankedResults) {
     const card = formatCompanyCard(row);
@@ -55,6 +64,9 @@ export function generateCsv(rankedResults) {
       card.sources.join("; "),
       card.investment_summary,
       (card.enrichment_sources ?? []).join("; "),
+      // `formatCompanyCard` drops unknown keys, so read researched columns off
+      // the original row.
+      ...extraColumns.map((label) => row?.custom_columns?.[label] ?? null),
     ];
     lines.push(values.map(csvEscape).join(","));
   }
