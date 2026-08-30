@@ -77,3 +77,60 @@ test("resolveQueryIntent clears company_names for general_info", () => {
   assert.equal(result.intent, "general_info");
   assert.deepEqual(result.structured.company_names, []);
 });
+
+// --- mandate wording must not be mistaken for a chat question --------------
+// "founder-owned", "founded after", and "raised" are ordinary mandate terms.
+// Matching them as bare keywords previously forced real screens to general_info.
+
+test("looksLikeChatQuestion ignores mandate wording that merely mentions ownership or funding", () => {
+  assert.equal(
+    looksLikeChatQuestion(
+      "European B2B SaaS companies with 10 to 50 million USD revenue, founder-owned, no PE backing"
+    ),
+    false
+  );
+  assert.equal(looksLikeChatQuestion("fintech startups founded after 2020"), false);
+  assert.equal(looksLikeChatQuestion("SaaS companies that raised Series B"), false);
+  assert.equal(looksLikeChatQuestion("Find European B2B SaaS companies, founder-owned"), false);
+});
+
+test("looksLikeChatQuestion still detects genuine questions", () => {
+  assert.equal(looksLikeChatQuestion("Who owns perplexity?"), true);
+  assert.equal(looksLikeChatQuestion("who founded Stripe"), true);
+  assert.equal(looksLikeChatQuestion("What is EBITDA"), true);
+  assert.equal(looksLikeChatQuestion("is Anthropic profitable"), true);
+  assert.equal(looksLikeChatQuestion("Stripe valuation of today?"), true);
+});
+
+test("resolveQueryIntent keeps a founder-owned revenue mandate as mandate_search", () => {
+  const result = resolveQueryIntent(
+    mockStructured({
+      intent: "mandate_search",
+      sector_tags: ["b2b saas"],
+      geography: ["Europe"],
+      keywords: ["founder-owned"],
+      revenue_min: 10000000,
+      revenue_max: 50000000,
+      region: "europe",
+    }),
+    "European B2B SaaS companies with 10 to 50 million USD revenue, founder-owned, no PE backing"
+  );
+
+  assert.equal(result.intent, "mandate_search");
+  assert.equal(result.structured.revenue_min, 10000000);
+  assert.ok(result.structured.geography.includes("Europe"));
+});
+
+test("resolveQueryIntent keeps a founded-after mandate as mandate_search", () => {
+  const result = resolveQueryIntent(
+    mockStructured({
+      intent: "mandate_search",
+      sector_tags: ["fintech"],
+      founded_after: "2020-01-01",
+    }),
+    "fintech startups founded after 2020"
+  );
+
+  assert.equal(result.intent, "mandate_search");
+  assert.equal(result.structured.founded_after, "2020-01-01");
+});

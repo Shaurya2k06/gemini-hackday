@@ -105,7 +105,19 @@ export function looksLikeChatQuestion(rawQuery) {
     return true;
   }
 
-  if (/\b(who\s+owns|valuation|worth|ceo|founder|founded|raised|last\s+round)\b/i.test(text)) {
+  if (text.endsWith("?")) {
+    return true;
+  }
+
+  // Only treat these as chat signals when they appear in question form. Bare
+  // keywords must NOT match: mandates legitimately contain "founder-owned",
+  // "founded after 2020", and "raised Series B", and matching those words
+  // alone would misroute a real screen to general_info.
+  if (/\bwho\s+(owns|founded|runs|leads|backs)\b/i.test(text)) {
+    return true;
+  }
+
+  if (/\b(valuation|net\s+worth|market\s+cap|last\s+round|revenue)\s+of\s+\S/i.test(text)) {
     return true;
   }
 
