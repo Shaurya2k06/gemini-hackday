@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Download, FileSpreadsheet, Plus } from 'lucide-react';
 import { GlanceTable } from '../components/discovery/GlanceTable';
+import { VoiceFeaturesPanel } from '../components/discovery/VoiceFeaturesPanel';
 import { PipelineProgress } from '../components/discovery/PipelineProgress';
 import { ChatSidebar } from '../components/chat/ChatSidebar';
 import { mapApiCardToCompany } from '../components/discovery/format';
@@ -379,6 +380,8 @@ function Results() {
               })
             }
           />
+
+          {companies.length > 0 ? <VoiceFeaturesPanel /> : null}
         </div>
       </main>
       </div>
