@@ -1,0 +1,107 @@
+{
+  "stripe_multi_source": {
+    "outcomes": [
+      {
+        "source": "crunchbase",
+        "success": true,
+        "results": [
+          {
+            "name": "Stripe",
+            "domain": "stripe.com",
+            "url": "https://www.crunchbase.com/organization/stripe",
+            "description": "Stripe is a financial infrastructure platform for businesses.",
+            "source": "crunchbase",
+            "method": "wikidata_p2088",
+            "raw": {
+              "website": "https://stripe.com",
+              "crunchbaseSlug": "stripe"
+            }
+          }
+        ]
+      },
+      {
+        "source": "wellfound",
+        "success": true,
+        "results": [
+          {
+            "name": "Stripe, Inc.",
+            "domain": null,
+            "url": "https://wellfound.com/company/stripe",
+            "description": "Stripe builds economic infrastructure for the internet.",
+            "source": "wellfound",
+            "method": "wikidata_p3553",
+            "raw": {
+              "website": "https://stripe.com",
+              "wellfoundId": "stripe"
+            }
+          }
+        ]
+      },
+      {
+        "source": "linkedin",
+        "success": true,
+        "results": [
+          {
+            "name": "Stripe",
+            "domain": null,
+            "url": "https://www.linkedin.com/company/stripe",
+            "description": "Stripe is a technology company that builds economic infrastructure for the internet.",
+            "source": "linkedin",
+            "method": "wikidata_p4264",
+            "raw": {
+              "website": "https://www.stripe.com",
+              "linkedinSlug": "stripe"
+            }
+          }
+        ]
+      },
+      {
+        "source": "github",
+        "success": true,
+        "results": [
+          {
+            "name": "stripe",
+            "domain": "github.com",
+            "url": "https://github.com/stripe",
+            "description": null,
+            "source": "github",
+            "method": "api",
+            "raw": { "login": "stripe" }
+          }
+        ]
+      }
+    ]
+  },
+  "description_conflict": {
+    "outcomes": [
+      {
+        "source": "crunchbase",
+        "success": true,
+        "results": [
+          {
+            "name": "Acme Pay",
+            "domain": "acmepay.io",
+            "description": "Acme Pay provides B2B payment rails for marketplaces.",
+            "source": "crunchbase",
+            "method": "direct",
+            "raw": { "website": "https://acmepay.io" }
+          }
+        ]
+      },
+      {
+        "source": "wellfound",
+        "success": true,
+        "results": [
+          {
+            "name": "Acme Pay",
+            "domain": "acmepay.io",
+            "description": "Acme Pay is a consumer wallet app for peer-to-peer transfers.",
+            "source": "wellfound",
+            "method": "direct",
+            "raw": { "website": "https://acmepay.io" }
+          }
+        ]
+      }
+    ]
+  }
+}
