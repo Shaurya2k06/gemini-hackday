@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import express from "express";
 import dotenv from "dotenv";
 import session from "express-session";
-import MongoStore from "connect-mongo";
+import connectPgSimple from "connect-pg-simple";
 import { registerApiRoutes } from "./routes.js";
 import { createCorsMiddleware } from "./src/middleware/cors.js";
 import { connectDb } from "./src/auth/db.js";
@@ -23,12 +23,13 @@ app.use(createCorsMiddleware());
 app.use(express.json({ limit: "2mb" }));
 
 export async function bootApp() {
-  const mongoUri = process.env.MONGODB_URI;
-  if (!mongoUri) {
-    throw new Error("MONGODB_URI is not set");
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is not set");
   }
 
-  await connectDb(mongoUri);
+  const db = await connectDb(databaseUrl);
+  const PgStore = connectPgSimple(session);
 
   const sessionSecret = process.env.SESSION_SECRET || "zoron-dev-session-secret";
   app.use(
@@ -37,10 +38,7 @@ export async function bootApp() {
       secret: sessionSecret,
       resave: false,
       saveUninitialized: false,
-      store: MongoStore.create({
-        mongoUrl: mongoUri,
-        ttl: 60 * 60 * 24 * 14,
-      }),
+      store: new PgStore({ pool: db, createTableIfMissing: true, ttl: 60 * 60 * 24 * 14 }),
       cookie: {
         httpOnly: true,
         sameSite: isProduction ? "none" : "lax",

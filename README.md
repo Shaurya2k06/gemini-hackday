@@ -8,6 +8,7 @@ Stateless AI discovery for Private Equity: build a mandate, review a 10-company 
 |-----------|--------|
 | API | Express (`server/`) |
 | UI | React + Vite (`client/`) |
+| Database | Neon PostgreSQL |
 | Light Agent | OpenAI `gpt-4o-mini` |
 | Discovery + enrichment | OpenAI `gpt-5-search-api` (`HEAVY_LLM_MODEL`) |
 
@@ -46,6 +47,7 @@ cd client && VITE_API_URL=https://your-api-domain.com npm run build
 
 | Directory | Variable | Required | Description |
 |-----------|----------|----------|-------------|
+| `server/` | `DATABASE_URL` | Yes | Neon PostgreSQL connection string |
 | `server/` | `OPENAI_API_KEY` | Yes | OpenAI API key |
 | `server/` | `CORS_ORIGINS` | Prod | Comma-separated frontend origins (default `http://localhost:5173` in dev) |
 | `server/` | `LIGHT_LLM_MODEL` | No | Default `gpt-4o-mini` |

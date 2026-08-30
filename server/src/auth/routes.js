@@ -11,7 +11,7 @@ function chatTitleFromQuery(rawQuery) {
 
 function serializeChatSummary(doc) {
   return {
-    id: String(doc._id),
+    id: String(doc.id),
     title: doc.title,
     rawQuery: doc.rawQuery,
     companyCount: Array.isArray(doc.companies) ? doc.companies.length : 0,
@@ -23,7 +23,7 @@ function serializeChatSummary(doc) {
 
 function serializeChat(doc) {
   return {
-    id: String(doc._id),
+    id: String(doc.id),
     title: doc.title,
     rawQuery: doc.rawQuery,
     structured: doc.structured,
@@ -62,9 +62,9 @@ export function registerAuthRoutes(app) {
         return;
       }
 
-      req.session.userId = String(user._id);
+      req.session.userId = String(user.id);
       req.session.username = user.username;
-      res.json({ user: { id: String(user._id), username: user.username } });
+      res.json({ user: { id: String(user.id), username: user.username } });
     } catch (error) {
       res.status(500).json({ error: error.message ?? "Login failed" });
     }
@@ -98,10 +98,7 @@ export function registerAuthRoutes(app) {
 export function registerChatRoutes(app) {
   app.get("/api/chats", requireAuth, async (req, res) => {
     try {
-      const chats = await Chat.find({ userId: req.session.userId })
-        .sort({ updatedAt: -1 })
-        .limit(50)
-        .select("title rawQuery companies constraintMode createdAt updatedAt");
+      const chats = await Chat.listByUser(req.session.userId);
       res.json({ chats: chats.map(serializeChatSummary) });
     } catch (error) {
       res.status(500).json({ error: error.message ?? "Could not list chats" });
@@ -111,7 +108,7 @@ export function registerChatRoutes(app) {
   app.get("/api/chats/:id", requireAuth, async (req, res) => {
     try {
       const chat = await Chat.findOne({
-        _id: req.params.id,
+        id: req.params.id,
         userId: req.session.userId,
       });
       if (!chat) {
@@ -163,7 +160,7 @@ export function registerChatRoutes(app) {
   app.patch("/api/chats/:id", requireAuth, async (req, res) => {
     try {
       const chat = await Chat.findOne({
-        _id: req.params.id,
+        id: req.params.id,
         userId: req.session.userId,
       });
       if (!chat) {
@@ -172,25 +169,24 @@ export function registerChatRoutes(app) {
       }
 
       const body = req.body ?? {};
-      if (body.rawQuery != null) chat.rawQuery = String(body.rawQuery);
-      if (body.structured !== undefined) chat.structured = body.structured;
-      if (body.constraintMode != null) {
-        chat.constraintMode = body.constraintMode === "lite" ? "lite" : "heavy";
-      }
+      const patch = {};
+      if (body.rawQuery != null) patch.rawQuery = String(body.rawQuery);
+      if (body.structured !== undefined) patch.structured = body.structured;
+      if (body.constraintMode != null) patch.constraintMode = body.constraintMode === "lite" ? "lite" : "heavy";
       if (Array.isArray(body.companies)) {
         if (body.companies.length === 0) {
           res.status(400).json({ error: "Shortlist cannot be empty" });
           return;
         }
-        chat.companies = body.companies;
+        patch.companies = body.companies;
       }
-      if (Array.isArray(body.cards)) chat.cards = body.cards;
-      if (Array.isArray(body.customColumns)) chat.customColumns = body.customColumns;
-      if (body.message !== undefined) chat.message = body.message;
-      if (body.title != null) chat.title = String(body.title).slice(0, 200);
+      if (Array.isArray(body.cards)) patch.cards = body.cards;
+      if (Array.isArray(body.customColumns)) patch.customColumns = body.customColumns;
+      if (body.message !== undefined) patch.message = body.message;
+      if (body.title != null) patch.title = String(body.title).slice(0, 200);
 
-      await chat.save();
-      res.json({ chat: serializeChat(chat) });
+      const updated = await Chat.update({ id: chat.id, userId: req.session.userId, ...patch });
+      res.json({ chat: serializeChat(updated) });
     } catch (error) {
       res.status(500).json({ error: error.message ?? "Could not update chat" });
     }
