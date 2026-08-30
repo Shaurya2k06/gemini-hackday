@@ -99,6 +99,82 @@ function salvageTruncatedJson(jsonText) {
 }
 
 /**
+ * Recover every individually valid object from the first array in the text.
+ *
+ * Truncation salvage only keeps the prefix before a defect, so one malformed
+ * record early in a long list discards all the good ones after it. This pass
+ * extracts each balanced `{...}` block independently and keeps the ones that
+ * parse, so a single bad record costs only itself.
+ */
+function recoverObjectsFromArray(jsonText) {
+  const arrayStart = jsonText.indexOf("[");
+  if (arrayStart === -1) return null;
+
+  const blocks = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = arrayStart; i < jsonText.length; i += 1) {
+    const ch = jsonText[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth += 1;
+    } else if (ch === "}") {
+      depth -= 1;
+      if (depth <= 0) {
+        if (start !== -1) blocks.push(jsonText.slice(start, i + 1));
+        depth = 0;
+        start = -1;
+      }
+    }
+  }
+
+  const records = [];
+  for (const block of blocks) {
+    try {
+      records.push(JSON.parse(block));
+      continue;
+    } catch {
+      // try the same repairs on the individual record
+    }
+    try {
+      records.push(JSON.parse(repairLlmJsonText(block)));
+    } catch {
+      // drop only this record
+    }
+  }
+
+  if (!records.length) return null;
+
+  // Reuse the key the model used ("companies", "results", ...) so callers
+  // reading a specific field still find their data.
+  const keyMatch = jsonText.slice(0, arrayStart).match(/"([A-Za-z_][\w]*)"\s*:\s*$/);
+  const key = keyMatch ? keyMatch[1] : "companies";
+  return { [key]: records };
+}
+
+/** Length of the first array field, used to pick the better recovery. */
+function primaryArrayLength(obj) {
+  if (!obj || typeof obj !== "object") return 0;
+  for (const value of Object.values(obj)) {
+    if (Array.isArray(value)) return value.length;
+  }
+  return 0;
+}
+
+/**
  * Extract and parse a JSON object from LLM text output.
  * @returns {{ parsed: object, repaired: boolean, truncated: boolean }}
  */
@@ -115,9 +191,17 @@ export function parseLlmJson(text) {
   try {
     return { parsed: JSON.parse(repairedText), repaired: true, truncated: false };
   } catch (error) {
+    // Two recovery strategies with different strengths: closing a truncated
+    // tail preserves the whole object shape, while per-record extraction
+    // survives a defect in the middle. Keep whichever rescues more records.
     const salvaged = salvageTruncatedJson(repairedText);
-    if (salvaged) {
-      return { parsed: salvaged, repaired: true, truncated: true };
+    const recovered = recoverObjectsFromArray(repairedText);
+
+    const best =
+      primaryArrayLength(recovered) > primaryArrayLength(salvaged) ? recovered : salvaged;
+
+    if (best) {
+      return { parsed: best, repaired: true, truncated: true };
     }
     throw new Error(`Invalid JSON in model response: ${error.message}`);
   }
