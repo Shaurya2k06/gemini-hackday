@@ -25,13 +25,13 @@ function groupPills(pills) {
 
 function PillChip({ pill, onRemove }) {
   return (
-    <span className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-xs bg-white dark:bg-[#161616] border border-[#dfdcd5] dark:border-[#333] text-black dark:text-white">
+    <span className="inline-flex items-center gap-1.5 pl-3 pr-1.5 py-1 rounded-full text-[12px] bg-cream border border-hairline text-ink">
       <span className="font-medium">{pill.label}</span>
       {pill.removable !== false && onRemove ? (
         <button
           type="button"
           onClick={() => onRemove(pill)}
-          className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 border-none bg-transparent cursor-pointer text-[#595855] dark:text-[#808080]"
+          className="p-0.5 rounded-full hover:bg-ink/10 border-none bg-transparent cursor-pointer text-secondary"
           aria-label={`Remove ${pill.label}`}
         >
           <X size={12} />
@@ -64,7 +64,7 @@ function CategoryRow({
 
   return (
     <div className="flex flex-wrap items-center gap-2 min-h-[28px]">
-      <span className="text-[11px] font-medium uppercase tracking-wide text-[#595855] dark:text-[#808080] w-24 shrink-0">
+      <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-[#8f8b80] w-24 shrink-0">
         {category}
       </span>
       {pills.map((pill) => (
@@ -91,14 +91,14 @@ function CategoryRow({
           }}
           disabled={disabled}
           placeholder={placeholder}
-          className="min-w-[140px] max-w-[220px] px-2.5 py-1 rounded-full text-xs border border-[#dfdcd5] dark:border-[#444] bg-white dark:bg-[#161616] outline-none focus:border-black/40 dark:focus:border-white/40"
+          className="min-w-[140px] max-w-[220px] px-2.5 py-1 rounded-full text-[12px] border border-ink/25 bg-cream text-ink outline-none focus:border-ink/50"
         />
       ) : (
         <button
           type="button"
           onClick={() => onStartAdd(field)}
           disabled={disabled}
-          className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-dashed border-[#dfdcd5] dark:border-[#444] text-[#595855] dark:text-[#a0a0a0] hover:border-black/30 dark:hover:border-white/30 bg-transparent cursor-pointer disabled:opacity-40"
+          className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-dashed border-ink/25 text-secondary hover:border-ink/50 hover:text-ink bg-transparent cursor-pointer disabled:opacity-40 transition-colors"
           aria-label={`Add ${category.toLowerCase()}`}
         >
           <Plus size={12} />
@@ -128,10 +128,6 @@ function intInput(raw) {
   if (!Number.isFinite(n)) return null;
   return Math.round(n);
 }
-
-/**
- * Editable min–max range for revenue / EBITDA ($M) or employees (count).
- */
 function RangeRow({
   category,
   min,
@@ -143,11 +139,9 @@ function RangeRow({
 }) {
   const show = min != null || max != null;
   if (!show) return null;
-
   const minVal = unit === 'millions' ? usdToMillionsInput(min) : min == null ? '' : String(min);
   const maxVal = unit === 'millions' ? usdToMillionsInput(max) : max == null ? '' : String(max);
   const suffix = unit === 'millions' ? '$M' : '';
-
   const commit = (nextMinRaw, nextMaxRaw) => {
     const nextMin = unit === 'millions' ? millionsInputToUsd(nextMinRaw) : intInput(nextMinRaw);
     const nextMax = unit === 'millions' ? millionsInputToUsd(nextMaxRaw) : intInput(nextMaxRaw);
@@ -156,10 +150,10 @@ function RangeRow({
 
   return (
     <div className="flex flex-wrap items-center gap-2 min-h-[28px]">
-      <span className="text-[11px] font-medium uppercase tracking-wide text-[#595855] dark:text-[#808080] w-24 shrink-0">
+      <span className="font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-[#8f8b80] w-24 shrink-0">
         {category}
       </span>
-      <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs bg-white dark:bg-[#161616] border border-[#dfdcd5] dark:border-[#333]">
+      <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[12px] bg-cream border border-hairline text-ink">
         <input
           type="number"
           inputMode="decimal"
@@ -167,10 +161,10 @@ function RangeRow({
           disabled={disabled}
           onChange={(e) => commit(e.target.value, maxVal)}
           placeholder="Min"
-          className="w-14 bg-transparent border-none outline-none text-xs text-center tabular-nums disabled:opacity-50"
+          className="w-14 bg-transparent border-none outline-none text-[12px] text-center tabular-nums disabled:opacity-50"
           aria-label={`${category} minimum`}
         />
-        <span className="text-[#595855] dark:text-[#808080]">–</span>
+        <span className="text-secondary">–</span>
         <input
           type="number"
           inputMode="decimal"
@@ -178,16 +172,16 @@ function RangeRow({
           disabled={disabled}
           onChange={(e) => commit(minVal, e.target.value)}
           placeholder="Max"
-          className="w-14 bg-transparent border-none outline-none text-xs text-center tabular-nums disabled:opacity-50"
+          className="w-14 bg-transparent border-none outline-none text-[12px] text-center tabular-nums disabled:opacity-50"
           aria-label={`${category} maximum`}
         />
-        {suffix ? <span className="text-[#595855] dark:text-[#808080] pr-0.5">{suffix}</span> : null}
+        {suffix ? <span className="text-secondary pr-0.5">{suffix}</span> : null}
         {onClear ? (
           <button
             type="button"
             onClick={onClear}
             disabled={disabled}
-            className="p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 border-none bg-transparent cursor-pointer text-[#595855] dark:text-[#808080] disabled:opacity-40"
+            className="p-0.5 rounded-full hover:bg-ink/10 border-none bg-transparent cursor-pointer text-secondary disabled:opacity-40"
             aria-label={`Clear ${category}`}
           >
             <X size={12} />
@@ -282,7 +276,7 @@ export function CriterionPills({
 
       {otherRows.map((category) => (
         <div key={category} className="flex flex-wrap items-center gap-2 min-h-[28px]">
-          <span className="text-[11px] font-medium uppercase tracking-wide text-[#595855] dark:text-[#808080] w-24 shrink-0">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-[#545454] dark:text-[#b2afa4] w-24 shrink-0">
             {category}
           </span>
           {(grouped.get(category) ?? []).map((pill) => (

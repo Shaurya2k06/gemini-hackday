@@ -35,9 +35,6 @@ function formatUsdM(raw) {
   return `$${n}M`;
 }
 
-/**
- * Build a natural-language mandate fragment from the manual form values.
- */
 export function buildManualMandateText(form) {
   const parts = [];
   const sector = form.sector.trim();
@@ -68,7 +65,7 @@ export function buildManualMandateText(form) {
 
 function FieldLabel({ children }) {
   return (
-    <label className="block text-[11px] font-medium uppercase tracking-wide text-[#595855] dark:text-[#808080] mb-1">
+    <label className="block font-mono text-[10px] font-medium uppercase tracking-[0.08em] text-[#8f8b80] mb-1">
       {children}
     </label>
   );
@@ -78,7 +75,7 @@ function TextInput({ className = '', ...props }) {
   return (
     <input
       {...props}
-      className={`w-full px-2.5 py-1.5 rounded-lg text-sm border border-[#dfdcd5] dark:border-[#333] bg-white dark:bg-[#0a0a0a] text-black dark:text-white outline-none focus:border-black/40 dark:focus:border-white/40 disabled:opacity-50 ${className}`}
+      className={`w-full px-2.5 py-1.5 text-[14px] border border-hairline bg-cream text-ink outline-none focus:border-ink/40 disabled:opacity-50 ${className}`}
     />
   );
 }
@@ -106,14 +103,14 @@ export function ManualFieldsForm({ onApply, onCancel, disabled = false }) {
   };
 
   return (
-    <div className="rounded-xl border border-[#dfdcd5] dark:border-[#333] bg-white dark:bg-[#161616] p-3 space-y-3">
+    <div className="border border-hairline bg-[#fbf7ec] p-3 space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-medium text-black dark:text-white">Enter screening fields</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-secondary">Enter screening fields</p>
         <button
           type="button"
           onClick={onCancel}
           disabled={disabled}
-          className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer text-[#595855] dark:text-[#808080] disabled:opacity-40"
+          className="p-1 hover:bg-ink/5 border-none bg-transparent cursor-pointer text-secondary disabled:opacity-40"
           aria-label="Close manual fields form"
         >
           <X size={14} />
@@ -152,10 +149,10 @@ export function ManualFieldsForm({ onApply, onCancel, disabled = false }) {
                 type="button"
                 disabled={disabled}
                 onClick={() => toggleStage(stage.id)}
-                className={`px-2.5 py-1 rounded-full text-xs border cursor-pointer transition-colors disabled:opacity-40 ${
+                className={`px-2.5 py-1 rounded-full text-[12px] border cursor-pointer transition-colors disabled:opacity-40 ${
                   active
-                    ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white'
-                    : 'bg-transparent text-[#595855] dark:text-[#a0a0a0] border-[#dfdcd5] dark:border-[#444] hover:border-black/30 dark:hover:border-white/30'
+                    ? 'bg-ink text-cream border-ink'
+                    : 'bg-transparent text-secondary border-hairline hover:border-ink/40 hover:text-ink'
                 }`}
               >
                 {stage.label}
@@ -177,7 +174,7 @@ export function ManualFieldsForm({ onApply, onCancel, disabled = false }) {
               disabled={disabled}
               placeholder="Min"
             />
-            <span className="text-xs text-[#595855] dark:text-[#808080]">–</span>
+            <span className="text-[13px] text-secondary">–</span>
             <TextInput
               type="number"
               inputMode="decimal"
@@ -199,7 +196,7 @@ export function ManualFieldsForm({ onApply, onCancel, disabled = false }) {
               disabled={disabled}
               placeholder="Min"
             />
-            <span className="text-xs text-[#595855] dark:text-[#808080]">–</span>
+            <span className="text-[13px] text-secondary">–</span>
             <TextInput
               type="number"
               inputMode="numeric"
@@ -227,7 +224,7 @@ export function ManualFieldsForm({ onApply, onCancel, disabled = false }) {
           type="button"
           onClick={onCancel}
           disabled={disabled}
-          className="px-3 py-1.5 rounded-lg text-xs border border-[#dfdcd5] dark:border-[#333] bg-transparent text-[#595855] dark:text-[#a0a0a0] cursor-pointer disabled:opacity-40"
+          className="h-[32px] px-3 font-mono text-[11px] uppercase tracking-[0.06em] border border-ink/20 bg-transparent text-secondary hover:text-ink hover:border-ink transition-colors cursor-pointer disabled:opacity-40"
         >
           Cancel
         </button>
@@ -235,7 +232,7 @@ export function ManualFieldsForm({ onApply, onCancel, disabled = false }) {
           type="button"
           onClick={handleApply}
           disabled={!canApply}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-black text-white dark:bg-white dark:text-black border-none cursor-pointer disabled:opacity-40"
+          className="h-[32px] px-4 font-mono text-[11px] uppercase tracking-[0.06em] bg-accent-red text-white border-none cursor-pointer hover:brightness-105 transition-all disabled:opacity-40"
         >
           Apply fields
         </button>

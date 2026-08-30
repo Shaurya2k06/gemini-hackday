@@ -41,20 +41,33 @@ export default {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
-        // Structured Specific Colors
-        putty: "var(--color-putty)",
+        // SafetyKit-inspired tokens
+        cream: "var(--color-cream)",
         ink: "var(--color-ink)",
+        secondary: "var(--color-secondary)",
+        'accent-red': "var(--color-accent-red)",
+        'accent-blue': "var(--color-accent-blue)",
+        'accent-amber': "var(--color-accent-amber)",
+        'accent-green': "var(--color-accent-green)",
+        hairline: "var(--color-hairline)",
+        paper: "var(--color-paper)",
+
+        // Back-compat aliases (older pages)
+        putty: "var(--color-cream)",
         bone: "var(--color-bone)",
         chalk: "var(--color-chalk)",
         vellum: "var(--color-vellum)",
-        graphite: "var(--color-graphite)",
-        ash: "var(--color-ash)",
-        paper: "var(--color-paper)",
+        graphite: "var(--color-secondary)",
+        ash: "var(--color-muted)",
       },
       fontFamily: {
         'advercase': ['Advercase', 'system-ui', 'sans-serif'],
-        'davinci': ['var(--font-davinci)', 'serif'],
-        'helvetica-now': ['var(--font-helvetica-now)', 'sans-serif'],
+        'sans': ['var(--font-sans)', 'sans-serif'],
+        'serif': ['var(--font-serif)', 'serif'],
+        'mono': ['var(--font-mono)', 'monospace'],
+        // Back-compat aliases
+        'davinci': ['var(--font-sans)', 'sans-serif'],
+        'helvetica-now': ['var(--font-sans)', 'sans-serif'],
       },
       animation: {
         'grid': 'grid 20s linear infinite',
