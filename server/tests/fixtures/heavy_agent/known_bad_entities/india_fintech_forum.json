@@ -1,0 +1,21 @@
+{
+  "id": "india_fintech_forum",
+  "description": "Forum entity — should be gated by entity plausibility",
+  "record": {
+    "name": "India FinTech Forum",
+    "url": "https://www.crunchbase.com/organization/india-fintech-forum",
+    "source": "crunchbase"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "India FinTech Forum\nIndustry forum and networking group.",
+    "serperOrganic": [],
+    "domainPageJinaText": {}
+  },
+  "expected": {
+    "finalDomain": null,
+    "skipDomainResolution": true,
+    "entityPlausibilityBelowPrimary": true,
+    "exclusionReason": "entity_plausibility"
+  }
+}

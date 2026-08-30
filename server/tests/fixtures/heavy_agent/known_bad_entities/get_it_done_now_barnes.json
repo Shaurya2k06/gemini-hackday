@@ -1,0 +1,26 @@
+{
+  "id": "get_it_done_now_barnes",
+  "description": "Get It Done Now wrongly resolved to barnesandnoble.com",
+  "record": {
+    "name": "Get It Done Now",
+    "url": "https://www.crunchbase.com/organization/get-it-done-now",
+    "source": "crunchbase"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "Get It Done Now\nStartup profile.",
+    "serperOrganic": [
+      { "link": "https://www.barnesandnoble.com", "title": "Barnes & Noble" }
+    ],
+    "domainPageJinaText": {
+      "barnesandnoble.com": "Barnes & Noble: Books, Toys & Games\nShop books online at Barnes & Noble bookstore."
+    }
+  },
+  "expected": {
+    "finalDomain": null,
+    "domain_relevance_status": "unverified_relevance",
+    "attempted_domain": "barnesandnoble.com",
+    "entityPlausibilityBelowPrimary": false,
+    "exclusionReason": "domain_relevance"
+  }
+}

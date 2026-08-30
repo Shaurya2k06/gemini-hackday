@@ -1,0 +1,26 @@
+{
+  "id": "fintech_hq_perkinswill",
+  "description": "FinTech HQ wrongly resolved to perkinswill.com architecture firm",
+  "record": {
+    "name": "FinTech HQ",
+    "url": "https://www.crunchbase.com/organization/fintech-hq",
+    "source": "crunchbase"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "FinTech HQ\nOrganization profile on Crunchbase.",
+    "serperOrganic": [
+      { "link": "https://www.perkinswill.com", "title": "Perkins&Will | Architecture" }
+    ],
+    "domainPageJinaText": {
+      "perkinswill.com": "Perkins&Will | Architecture and design firm\nGlobal architecture practice designing workplaces and campuses."
+    }
+  },
+  "expected": {
+    "finalDomain": null,
+    "domain_relevance_status": "unverified_relevance",
+    "attempted_domain": "perkinswill.com",
+    "entityPlausibilityBelowPrimary": false,
+    "exclusionReason": "domain_relevance"
+  }
+}
