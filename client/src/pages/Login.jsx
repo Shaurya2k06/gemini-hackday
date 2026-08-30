@@ -81,10 +81,10 @@ export default function Login() {
         <Link
           to="/"
           className="absolute top-6 left-6 flex items-center gap-2.5 no-underline"
-          aria-label="Zoron home"
+          aria-label="Meredian home"
         >
           <Monogram />
-          <span className="font-sans font-bold text-[15px] tracking-tight text-ink">Zoron</span>
+          <span className="font-sans font-bold text-[15px] tracking-tight text-ink">Meredian</span>
         </Link>
         <Link
           to="/"
@@ -108,7 +108,7 @@ export default function Login() {
               </TextAnimate>
             </div>
             <p className="text-secondary text-[14px] mt-2">
-              Sign in to your Zoron account
+              Sign in to your Meredian account
             </p>
             {errorMsg ? (
               <div

@@ -1,5 +1,5 @@
 /**
- * Live accuracy harness for the Zoron discovery pipeline.
+ * Live accuracy harness for the Meredian discovery pipeline.
  *
  * Drives the real API (parse -> discover) with 10 diverse mandates, then scores
  * each returned company against the stated geography and funding-stage

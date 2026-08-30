@@ -41,7 +41,7 @@ export function resolveStructured(store, { mandateId, structured }) {
     if (!entry) {
       throw new McpError(
         ErrorCode.InvalidParams,
-        `No mandate found with id "${mandateId}". Run zoron_parse_mandate first, or pass \`structured\` inline.`
+        `No mandate found with id "${mandateId}". Run meredian_parse_mandate first, or pass \`structured\` inline.`
       );
     }
     return {
@@ -57,7 +57,7 @@ export function resolveStructured(store, { mandateId, structured }) {
 
   throw new McpError(
     ErrorCode.InvalidParams,
-    "Provide either `mandateId` (from zoron_parse_mandate) or an inline `structured` mandate object."
+    "Provide either `mandateId` (from meredian_parse_mandate) or an inline `structured` mandate object."
   );
 }
 

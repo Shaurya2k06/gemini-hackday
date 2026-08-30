@@ -104,7 +104,7 @@ export function VoiceFeaturesPanel({ structured = null, rawQuery = '', onRefined
           <span className={badgeClass}>Gemini 3.5 Transcribe</span>
         </div>
         <p className="text-xs text-[#595855] dark:text-[#808080] leading-relaxed">
-          Speak a change instead of typing it — Zoron transcribes it and merges it into this
+          Speak a change instead of typing it — Meredian transcribes it and merges it into this
           search's screening criteria.
         </p>
         {error ? <p className="text-xs text-amber-700 dark:text-amber-400">{error}</p> : null}
@@ -146,7 +146,7 @@ export function VoiceFeaturesPanel({ structured = null, rawQuery = '', onRefined
           <span className={badgeClass}>Gemini 3.1 Flash Live</span>
         </div>
         <p className="text-xs text-[#595855] dark:text-[#808080] leading-relaxed">
-          Have a real-time spoken conversation with Zoron about this shortlist or a specific deal.
+          Have a real-time spoken conversation with Meredian about this shortlist or a specific deal.
         </p>
         <button
           type="button"

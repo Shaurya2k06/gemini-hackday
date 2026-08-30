@@ -10,7 +10,7 @@ export const SERVER_DIR = path.resolve(__dirname, "..", "..", "server");
 /**
  * Load `server/.env` into process.env.
  *
- * The Zoron pipeline modules read process.env directly (GEMINI_API_KEY,
+ * The Meredian pipeline modules read process.env directly (GEMINI_API_KEY,
  * HEAVY_LLM_MODEL, SKIP_HEAVY_SEARCH, tuning vars). Normally `server/index.js`
  * performs this load, but the MCP server never boots Express — so we do it here.
  *

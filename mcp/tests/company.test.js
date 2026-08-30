@@ -40,21 +40,21 @@ function companyPipeline(overrides = {}) {
 
 // --- lookup ----------------------------------------------------------------
 
-test("zoron_lookup_company resolves a name and caches the result", async () => {
+test("meredian_lookup_company resolves a name and caches the result", async () => {
   const { pipeline, calls } = companyPipeline();
   const { client, store, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_lookup_company",
+      name: "meredian_lookup_company",
       arguments: { companyName: "Personio" },
     });
 
     assert.equal(result.isError ?? false, false);
     assert.equal(result.structuredContent.found, true);
     assert.equal(result.structuredContent.domain, "personio.de");
-    assert.equal(result.structuredContent.resourceUri, "zoron://dossier/personio.de");
+    assert.equal(result.structuredContent.resourceUri, "meredian://dossier/personio.de");
     assert.match(result.content[0].text, /Found Personio \(personio\.de\)/);
-    assert.match(result.content[0].text, /zoron_deep_dive/);
+    assert.match(result.content[0].text, /meredian_deep_dive/);
 
     // The pipeline gate needs intent company_lookup plus company_names.
     const { args } = calls[0];
@@ -67,12 +67,12 @@ test("zoron_lookup_company resolves a name and caches the result", async () => {
   }
 });
 
-test("zoron_lookup_company merges optional mandate context into the search", async () => {
+test("meredian_lookup_company merges optional mandate context into the search", async () => {
   const { pipeline, calls } = companyPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     await client.callTool({
-      name: "zoron_lookup_company",
+      name: "meredian_lookup_company",
       arguments: { companyName: "Acme", structured: makeStructuredMandate() },
     });
     const { args } = calls[0];
@@ -94,7 +94,7 @@ test("a lookup miss is an informative answer, not an error", async () => {
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_lookup_company",
+      name: "meredian_lookup_company",
       arguments: { companyName: "Nonexistent Ltd" },
     });
 
@@ -106,12 +106,12 @@ test("a lookup miss is an informative answer, not an error", async () => {
   }
 });
 
-test("zoron_lookup_company rejects an empty name", async () => {
+test("meredian_lookup_company rejects an empty name", async () => {
   const { pipeline } = companyPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_lookup_company",
+      name: "meredian_lookup_company",
       arguments: { companyName: "   " },
     });
     assert.equal(result.isError, true);
@@ -123,21 +123,21 @@ test("zoron_lookup_company rejects an empty name", async () => {
 
 // --- deep dive -------------------------------------------------------------
 
-test("zoron_deep_dive resolves a company from a shortlist and stores the dossier", async () => {
+test("meredian_deep_dive resolves a company from a shortlist and stores the dossier", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const { pipeline, calls } = companyPipeline();
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { shortlistId, domain: "co2.example" },
     });
 
     assert.equal(result.isError ?? false, false);
     assert.equal(result.structuredContent.domain, "co2.example");
     assert.equal(result.structuredContent.enrichmentSuccess, true);
-    assert.equal(result.structuredContent.resourceUri, "zoron://dossier/co2.example");
+    assert.equal(result.structuredContent.resourceUri, "meredian://dossier/co2.example");
 
     // The card's nested `fields` must be flattened into a company object.
     const call = calls.find((c) => c.fn === "handleDeepDiveStream");
@@ -154,14 +154,14 @@ test("zoron_deep_dive resolves a company from a shortlist and stores the dossier
   }
 });
 
-test("zoron_deep_dive passes a targeted userQuestion through", async () => {
+test("meredian_deep_dive passes a targeted userQuestion through", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(1));
   const { pipeline, calls } = companyPipeline();
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: {
         shortlistId,
         domain: "co1.example",
@@ -175,12 +175,12 @@ test("zoron_deep_dive passes a targeted userQuestion through", async () => {
   }
 });
 
-test("zoron_deep_dive accepts a bare domain with no shortlist", async () => {
+test("meredian_deep_dive accepts a bare domain with no shortlist", async () => {
   const { pipeline, calls } = companyPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { domain: "https://www.Standalone.example/about" },
     });
     assert.equal(result.isError ?? false, false);
@@ -191,7 +191,7 @@ test("zoron_deep_dive accepts a bare domain with no shortlist", async () => {
   }
 });
 
-test("zoron_deep_dive reuses a company cached by an earlier lookup", async () => {
+test("meredian_deep_dive reuses a company cached by an earlier lookup", async () => {
   const store = new ResultStore();
   store.putDossier("personio.de", {
     company: { domain: "personio.de", name: "Personio", employees_count: 2000 },
@@ -202,7 +202,7 @@ test("zoron_deep_dive reuses a company cached by an earlier lookup", async () =>
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { domain: "personio.de" },
     });
     const call = calls.find((c) => c.fn === "handleDeepDiveStream");
@@ -212,16 +212,16 @@ test("zoron_deep_dive reuses a company cached by an earlier lookup", async () =>
   }
 });
 
-test("zoron_deep_dive requires a resolvable company", async () => {
+test("meredian_deep_dive requires a resolvable company", async () => {
   const { pipeline } = companyPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
-    const noTarget = await client.callTool({ name: "zoron_deep_dive", arguments: {} });
+    const noTarget = await client.callTool({ name: "meredian_deep_dive", arguments: {} });
     assert.equal(noTarget.isError, true);
     assert.match(noTarget.content[0].text, /Provide `domain`/);
 
     const badInline = await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { company: { name: "No Domain Co" } },
     });
     assert.equal(badInline.isError, true);
@@ -231,14 +231,14 @@ test("zoron_deep_dive requires a resolvable company", async () => {
   }
 });
 
-test("zoron_deep_dive lists available domains when the requested one is absent", async () => {
+test("meredian_deep_dive lists available domains when the requested one is absent", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(2));
   const { pipeline } = companyPipeline();
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { shortlistId, domain: "absent.example" },
     });
     assert.equal(result.isError, true);
@@ -249,7 +249,7 @@ test("zoron_deep_dive lists available domains when the requested one is absent",
   }
 });
 
-test("zoron_deep_dive flags incomplete enrichment instead of failing", async () => {
+test("meredian_deep_dive flags incomplete enrichment instead of failing", async () => {
   const { pipeline } = companyPipeline({
     handleDeepDiveStream: async (args) => ({
       dossier: makeCard({ fields: { name: "Partial Co", domain: args.company.domain } }),
@@ -260,7 +260,7 @@ test("zoron_deep_dive flags incomplete enrichment instead of failing", async () 
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { domain: "partial.example" },
     });
     assert.equal(result.isError ?? false, false);
@@ -271,13 +271,13 @@ test("zoron_deep_dive flags incomplete enrichment instead of failing", async () 
   }
 });
 
-test("zoron_deep_dive streams progress to the host", async () => {
+test("meredian_deep_dive streams progress to the host", async () => {
   const { pipeline } = companyPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   const seen = [];
   try {
     await client.callTool(
-      { name: "zoron_deep_dive", arguments: { domain: "acme.example" } },
+      { name: "meredian_deep_dive", arguments: { domain: "acme.example" } },
       undefined,
       { onprogress: (p) => seen.push(p) }
     );

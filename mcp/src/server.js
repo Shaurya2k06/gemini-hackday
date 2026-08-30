@@ -12,30 +12,30 @@ import { registerExportTools } from "./tools/export.js";
 import { registerForesightTools } from "./tools/foresight.js";
 
 export const SERVER_INFO = {
-  name: "zoron",
+  name: "meredian",
   version: "1.0.0",
 };
 
 /**
- * Build the Zoron MCP server with every tool, resource and prompt registered.
+ * Build the Meredian MCP server with every tool, resource and prompt registered.
  *
  * Transport-agnostic on purpose: `index.js` attaches stdio, and a Streamable
  * HTTP entrypoint can reuse this factory unchanged.
  *
  * @param store     result cache; defaults to a fresh in-memory store
- * @param pipeline  Zoron pipeline functions; injectable so tests can substitute
+ * @param pipeline  Meredian pipeline functions; injectable so tests can substitute
  *                  stubs instead of calling Gemini
  */
-export function createZoronServer({
+export function createMeredianServer({
   store = new ResultStore(),
   pipeline = defaultPipeline,
 } = {}) {
   const server = new McpServer(SERVER_INFO, {
     instructions:
-      "Zoron performs private-equity target screening. Typical flow: " +
-      "zoron_parse_mandate to build a structured mandate, zoron_discover to " +
-      "produce a ranked shortlist, then zoron_deep_dive for per-company " +
-      "dossiers. Full result payloads are available as zoron:// resources.",
+      "Meredian performs private-equity target screening. Typical flow: " +
+      "meredian_parse_mandate to build a structured mandate, meredian_discover to " +
+      "produce a ranked shortlist, then meredian_deep_dive for per-company " +
+      "dossiers. Full result payloads are available as meredian:// resources.",
   });
 
   registerHealthTool(server, store);
@@ -49,17 +49,17 @@ export function createZoronServer({
   registerPrompts(server);
 
   // Exposed so tests can seed and inspect results without the protocol.
-  server.zoronStore = store;
+  server.meredianStore = store;
   return server;
 }
 
 function registerHealthTool(server, store) {
   server.registerTool(
-    "zoron_health",
+    "meredian_health",
     {
-      title: "Zoron health check",
+      title: "Meredian health check",
       description:
-        "Report whether the Zoron pipeline is configured and reachable: Gemini key " +
+        "Report whether the Meredian pipeline is configured and reachable: Gemini key " +
         "presence, configured models, and whether heavy search is skipped.",
       inputSchema: {},
       annotations: { readOnlyHint: true, openWorldHint: false },
@@ -76,7 +76,7 @@ function registerHealthTool(server, store) {
       const ready = config.geminiKeyPresent && pipelineImport === "ok";
       const stats = store.stats();
       const lines = [
-        `Zoron MCP server ${ready ? "ready" : "NOT ready"}`,
+        `Meredian MCP server ${ready ? "ready" : "NOT ready"}`,
         `  pipeline import: ${pipelineImport}`,
         `  GEMINI_API_KEY:  ${config.geminiKeyPresent ? "present" : "MISSING"}`,
         `  light model:     ${config.lightModel}`,

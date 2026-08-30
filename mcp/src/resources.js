@@ -25,20 +25,20 @@ function notFound(what, id) {
 }
 
 /**
- * Register the `zoron://` resource surface.
+ * Register the `meredian://` resource surface.
  *
  * Full payloads live here so tool results can stay compact. Completion
  * callbacks let hosts autocomplete known IDs.
  */
 export function registerResources(server, store) {
   server.registerResource(
-    "zoron-mandate",
-    new ResourceTemplate("zoron://mandate/{id}", {
+    "meredian-mandate",
+    new ResourceTemplate("meredian://mandate/{id}", {
       list: undefined,
       complete: { id: () => store.stats().mandateIds },
     }),
     {
-      title: "Zoron mandate",
+      title: "Meredian mandate",
       description:
         "A parsed investment mandate: structured criteria, UI pills, intent, and the accumulated natural-language query.",
       mimeType: JSON_MIME,
@@ -51,13 +51,13 @@ export function registerResources(server, store) {
   );
 
   server.registerResource(
-    "zoron-shortlist",
-    new ResourceTemplate("zoron://shortlist/{id}", {
+    "meredian-shortlist",
+    new ResourceTemplate("meredian://shortlist/{id}", {
       list: undefined,
       complete: { id: () => store.stats().shortlistIds },
     }),
     {
-      title: "Zoron shortlist",
+      title: "Meredian shortlist",
       description:
         "A ranked company shortlist from discovery: full enriched company cards, gated matches, and pipeline stage metadata.",
       mimeType: JSON_MIME,
@@ -70,10 +70,10 @@ export function registerResources(server, store) {
   );
 
   server.registerResource(
-    "zoron-shortlist-company",
-    new ResourceTemplate("zoron://shortlist/{id}/company/{domain}", { list: undefined }),
+    "meredian-shortlist-company",
+    new ResourceTemplate("meredian://shortlist/{id}/company/{domain}", { list: undefined }),
     {
-      title: "Zoron shortlist company",
+      title: "Meredian shortlist company",
       description: "A single enriched company card from a stored shortlist, addressed by domain.",
       mimeType: JSON_MIME,
     },
@@ -92,10 +92,10 @@ export function registerResources(server, store) {
   );
 
   server.registerResource(
-    "zoron-dossier",
-    new ResourceTemplate("zoron://dossier/{domain}", { list: undefined }),
+    "meredian-dossier",
+    new ResourceTemplate("meredian://dossier/{domain}", { list: undefined }),
     {
-      title: "Zoron company dossier",
+      title: "Meredian company dossier",
       description:
         "A deep-dive investor dossier for one company: enriched fields, investment summary, and cited sources.",
       mimeType: JSON_MIME,

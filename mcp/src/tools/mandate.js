@@ -35,16 +35,16 @@ function storeAndSummarize(store, parsed) {
 
 function registerParseMandate(server, store, pipeline) {
   server.registerTool(
-    "zoron_parse_mandate",
+    "meredian_parse_mandate",
     {
       title: "Parse investment mandate",
       description:
         "Turn natural-language screening criteria into a structured PE mandate. " +
-        "Returns a mandateId to pass to zoron_discover, plus the criteria found. " +
+        "Returns a mandateId to pass to meredian_discover, plus the criteria found. " +
         "Build a mandate over several turns by passing the previous " +
         "`accumulatedText` and `priorStructured` back in with each new fragment. " +
         "Also detects when the user is asking about one named company rather than " +
-        "screening (intent `company_lookup`) — use zoron_lookup_company then.",
+        "screening (intent `company_lookup`) — use meredian_lookup_company then.",
       inputSchema: {
         text: z
           .string()
@@ -70,7 +70,7 @@ function registerParseMandate(server, store, pipeline) {
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     guarded(
-      "zoron_parse_mandate",
+      "meredian_parse_mandate",
       async ({ text, accumulatedText, priorStructured, fieldHint }) => {
         const parsed = await pipeline.handleMandateParse({
           text,
@@ -94,12 +94,12 @@ function registerParseMandate(server, store, pipeline) {
 
 function registerParseThesisPdf(server, store, pipeline) {
   server.registerTool(
-    "zoron_parse_thesis_pdf",
+    "meredian_parse_thesis_pdf",
     {
       title: "Parse investment thesis PDF",
       description:
         "Read an investment thesis PDF from disk and extract a structured mandate from it. " +
-        "Returns a mandateId usable with zoron_discover. Requires a text-based PDF; " +
+        "Returns a mandateId usable with meredian_discover. Requires a text-based PDF; " +
         "scanned image-only documents cannot be read.",
       inputSchema: {
         path: z
@@ -108,7 +108,7 @@ function registerParseThesisPdf(server, store, pipeline) {
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    guarded("zoron_parse_thesis_pdf", async ({ path: filePath }) => {
+    guarded("meredian_parse_thesis_pdf", async ({ path: filePath }) => {
       const resolved = path.resolve(filePath);
 
       if (path.extname(resolved).toLowerCase() !== ".pdf") {

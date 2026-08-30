@@ -51,7 +51,7 @@ function renderScore(row) {
 
 function registerTransitionScore(server, store, pipeline) {
   server.registerTool(
-    "zoron_transition_score",
+    "meredian_transition_score",
     {
       title: "Score ownership-transition likelihood",
       description:
@@ -80,7 +80,7 @@ function registerTransitionScore(server, store, pipeline) {
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    guarded("zoron_transition_score", async (args) => {
+    guarded("meredian_transition_score", async (args) => {
       const cutoff = args.cutoff ?? new Date().toISOString().slice(0, 10);
       const observation = await pipeline.extractSignalsAsOf({
         name: args.name,
@@ -118,7 +118,7 @@ function registerTransitionScore(server, store, pipeline) {
 
 function registerBacktest(server, store, pipeline) {
   server.registerTool(
-    "zoron_backtest_thesis",
+    "meredian_backtest_thesis",
     {
       title: "Backtest a sourcing thesis point-in-time",
       description:
@@ -161,7 +161,7 @@ function registerBacktest(server, store, pipeline) {
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    guarded("zoron_backtest_thesis", async (args) => {
+    guarded("meredian_backtest_thesis", async (args) => {
       let candidates = args.candidates ?? null;
 
       if (!candidates && args.shortlistId) {
@@ -169,7 +169,7 @@ function registerBacktest(server, store, pipeline) {
         if (!entry) {
           throw new McpError(
             ErrorCode.InvalidParams,
-            `No shortlist found with id "${args.shortlistId}". Run zoron_discover first.`
+            `No shortlist found with id "${args.shortlistId}". Run meredian_discover first.`
           );
         }
         candidates = entry.cards

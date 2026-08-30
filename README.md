@@ -1,4 +1,4 @@
-# Zoron
+# Meredian
 
 Stateless AI discovery for Private Equity: build a mandate, review a 10-company shortlist, then open company dossiers.
 
@@ -59,7 +59,7 @@ cd client && VITE_API_URL=https://your-api-domain.com npm run build
 
 ## MCP server
 
-`mcp/` exposes the discovery pipeline as MCP tools so an MCP host (Claude Desktop, Kiro, Cursor) can drive Zoron directly. It imports `server/src/` in-process — no Express, no database, only the LLM API key.
+`mcp/` exposes the discovery pipeline as MCP tools so an MCP host (Claude Desktop, Kiro, Cursor) can drive Meredian directly. It imports `server/src/` in-process — no Express, no database, only the LLM API key.
 
 ```bash
 cd mcp && npm install

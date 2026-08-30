@@ -2,7 +2,7 @@
  * Protect the stdio JSON-RPC channel.
  *
  * On a stdio transport, stdout belongs exclusively to the MCP protocol. Any
- * stray write corrupts the stream and the host drops the connection. The Zoron
+ * stray write corrupts the stream and the host drops the connection. The Meredian
  * pipeline logs through `server/src/lib/logger.js`, which calls `console.log`,
  * so console output must be rerouted to stderr before any tool runs.
  *

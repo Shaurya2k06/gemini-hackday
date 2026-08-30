@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'zoron-discovery-state';
+const STORAGE_KEY = 'meredian-discovery-state';
 
 export function saveDiscoveryState(state) {
   try {

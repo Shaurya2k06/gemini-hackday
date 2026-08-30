@@ -106,7 +106,7 @@ function Landing() {
   }, []);
 
   const PE_FEATURES = [
-    { icon: Scale, title: 'Revenue & EBITDA bands', desc: 'Size your mandate with revenue or EBITDA thresholds — Zoron sources and vets companies against those financial bands.' },
+    { icon: Scale, title: 'Revenue & EBITDA bands', desc: 'Size your mandate with revenue or EBITDA thresholds — Meredian sources and vets companies against those financial bands.' },
     { icon: Globe, title: 'Geography filter', desc: 'When your mandate specifies a market, companies outside that geography are excluded from the shortlist.' },
     { icon: Shield, title: 'Mandate vetting', desc: 'Events, incumbents, and thesis mismatches are flagged in a separate section with clear exclusion reasons.' },
     { icon: Search, title: 'Live web research', desc: 'New mandates trigger a fresh market scan, followed by individual company profiles from public sources.' },
@@ -137,7 +137,7 @@ function Landing() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Monogram />
-            <span className="font-sans font-bold text-[15px] tracking-tight">Zoron</span>
+            <span className="font-sans font-bold text-[15px] tracking-tight">Meredian</span>
           </div>
           <div className="flex items-center gap-7">
             <a href="#features" className="font-mono text-[12px] uppercase tracking-[0.08em] text-secondary hover:text-accent-red transition-colors hidden sm:inline">
@@ -169,7 +169,7 @@ function Landing() {
           </h1>
 
           <p className="text-secondary text-[16px] md:text-[18px] max-w-xl mx-auto leading-[1.55] mb-9">
-            Describe your investment mandate in plain English — sector, geography, revenue or EBITDA bands. Zoron researches the market, vets each company against your thesis, and returns a ranked shortlist you can export for diligence.
+            Describe your investment mandate in plain English — sector, geography, revenue or EBITDA bands. Meredian researches the market, vets each company against your thesis, and returns a ranked shortlist you can export for diligence.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 mb-14">
@@ -249,7 +249,7 @@ function Landing() {
               Type your thesis. Get a vetted shortlist.
             </h2>
             <p className="text-cream/70 text-[16px] leading-[1.55] max-w-md">
-              No filters to configure, no rigid forms. Zoron parses your mandate into structured criteria — sector, geography, financial bands — then goes to work.
+              No filters to configure, no rigid forms. Meredian parses your mandate into structured criteria — sector, geography, financial bands — then goes to work.
             </p>
             <button onClick={() => navigate('/chat')} className={`${btnPrimary} mt-8`}>
               Try an Example <ArrowRight size={15} />
@@ -289,7 +289,7 @@ function Landing() {
       <section id="features" className="py-24 px-6 bg-cream border-b border-hairline">
         <div className="max-w-6xl mx-auto">
           <div className="mb-14 max-w-2xl">
-            <Eyebrow tone="red">How Zoron Works</Eyebrow>
+            <Eyebrow tone="red">How Meredian Works</Eyebrow>
             <h2 className="text-[34px] md:text-[44px] font-sans font-semibold tracking-[-0.02em] leading-[1.05] mt-4">
               From mandate to shortlist.
             </h2>
@@ -411,7 +411,7 @@ function Landing() {
               One workflow. Every part of the mandate.
             </h2>
             <p className="text-cream/60 text-[16px] leading-[1.55] mt-5">
-              Zoron evaluates the whole opportunity — not just a name on a list. Financial bands, geography, ownership, and thesis fit are checked together, with every exclusion reasoned.
+              Meredian evaluates the whole opportunity — not just a name on a list. Financial bands, geography, ownership, and thesis fit are checked together, with every exclusion reasoned.
             </p>
           </div>
 
@@ -471,7 +471,7 @@ function Landing() {
             </div>
 
             {[
-              { n: '01', tag: 'Your Mandate', h: 'Understand the Thesis', p: 'Describe what you are looking for in plain English. Zoron extracts sector, geography, revenue or EBITDA bands, and headcount into structured search criteria.' },
+              { n: '01', tag: 'Your Mandate', h: 'Understand the Thesis', p: 'Describe what you are looking for in plain English. Meredian extracts sector, geography, revenue or EBITDA bands, and headcount into structured search criteria.' },
               { n: '02', tag: 'Prior Research', h: 'Check What We Already Know', p: 'Saved company profiles from prior mandates are checked first. Outdated records refresh automatically; new mandates trigger a fresh market scan.' },
               { n: '03', tag: 'Market Scan', h: 'Find Matching Companies', p: 'Web research runs against your mandate bands. Each candidate gets an individual profile — domain verification, press coverage, and financial signals from public sources.' },
               { n: '04', tag: 'Mandate Vetting', h: 'Filter to Real Opportunities', p: 'Companies outside your revenue or EBITDA bands are excluded. Events, incumbents, and geography mismatches are flagged with clear reasons.' },
@@ -643,14 +643,14 @@ function Landing() {
           <div className="pt-20 mt-8 border-t border-cream/10 flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] text-cream/60">
             <div className="flex items-center gap-2.5">
               <Monogram light />
-              <span className="font-sans font-bold text-cream">Zoron</span>
+              <span className="font-sans font-bold text-cream">Meredian</span>
             </div>
             <div className="flex gap-7 font-mono uppercase tracking-[0.08em] text-[11px]">
               <a href="#features" className="hover:text-cream transition-colors">Overview</a>
               <a href="#product" className="hover:text-cream transition-colors">Capabilities</a>
               <a href="#technology" className="hover:text-cream transition-colors">How It Works</a>
             </div>
-            <span className="font-mono text-[11px]">© 2026 Zoron AI Sourcing</span>
+            <span className="font-mono text-[11px]">© 2026 Meredian AI Sourcing</span>
           </div>
         </div>
       </footer>

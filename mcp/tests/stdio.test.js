@@ -59,7 +59,7 @@ test("stdio entrypoint answers initialize with clean protocol-only stdout", asyn
   }
 
   const initResult = JSON.parse(lines[0]).result;
-  assert.equal(initResult.serverInfo.name, "zoron");
+  assert.equal(initResult.serverInfo.name, "meredian");
   assert.ok(initResult.capabilities.tools, "tools capability must be advertised");
   assert.ok(initResult.capabilities.resources, "resources capability must be advertised");
   assert.ok(initResult.capabilities.prompts, "prompts capability must be advertised");
@@ -73,7 +73,7 @@ test("pipeline console.log is redirected away from stdout", async () => {
   const { stdout } = await runStdio(
     [
       INITIALIZE,
-      { jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "zoron_health", arguments: {} } },
+      { jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "meredian_health", arguments: {} } },
     ],
     { GEMINI_API_KEY: "sk-test-key" }
   );

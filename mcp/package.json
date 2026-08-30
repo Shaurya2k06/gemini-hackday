@@ -1,8 +1,8 @@
 {
-  "name": "zoron-mcp",
+  "name": "meredian-mcp",
   "version": "1.0.0",
   "private": true,
-  "description": "MCP server exposing the Zoron PE discovery pipeline",
+  "description": "MCP server exposing the Meredian PE discovery pipeline",
   "main": "src/index.js",
   "type": "module",
   "engines": {
