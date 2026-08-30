@@ -1,4 +1,4 @@
-# Meredian
+# Meredian.
 
 Stateless AI discovery for Private Equity: build a mandate, review a 10-company shortlist, then open company dossiers.
 
