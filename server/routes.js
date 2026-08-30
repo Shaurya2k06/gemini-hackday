@@ -46,7 +46,6 @@ export function createSseStream(res) {
 
   return send;
 }
-
 export function registerApiRoutes(app) {
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true });
@@ -186,8 +185,8 @@ export function registerApiRoutes(app) {
 
   app.post("/api/discover/custom-column", async (req, res) => {
     try {
-      if (!process.env.OPENAI_API_KEY) {
-        res.status(503).json({ error: "OPENAI_API_KEY is not set" });
+      if (!process.env.GEMINI_API_KEY) {
+        res.status(503).json({ error: "GEMINI_API_KEY is not set" });
         return;
       }
       const { query, cards } = req.body ?? {};

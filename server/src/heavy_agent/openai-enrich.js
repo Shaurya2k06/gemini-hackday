@@ -2,9 +2,9 @@
  * Per-company investment enrichment via gpt-5-search-api.
  * The API searches news, Crunchbase, press, filings, etc. — we only parse JSON.
  */
-import OpenAI from "openai";
 import { logger } from "../lib/logger.js";
 import { parseLlmJson } from "../lib/parse-llm-json.js";
+import { callGeminiSearch } from "../lib/llm.js";
 import { FUNDING_STAGES } from "../light_agent/schema.js";
 import { mandateAllowsFundingStage } from "../light_agent/funding-stage.js";
 import { inferCountryCodeFromGeoString } from "../light_agent/geo/countries.js";
@@ -35,17 +35,6 @@ const VALID_ENTITY_TYPES = new Set([
   "conference",
   "unknown",
 ]);
-
-let client;
-
-function getClient() {
-  if (!client) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
-    client = new OpenAI({ apiKey });
-  }
-  return client;
-}
 
 function normalizeStage(value) {
   if (value == null || value === "") return null;
@@ -505,14 +494,14 @@ export async function enrichCompanyViaOpenAI(
   });
 
   try {
-    const openai = getClient();
     const prompt = promptBuilder
       ? promptBuilder(company, structured, { userQuestion })
       : deepDive
         ? buildDeepDiveResearchPrompt(company, structured, { userQuestion })
         : buildEnrichmentPrompt(company, structured, { userQuestion });
-    const response = await openai.chat.completions.create({
+    const { content } = await callGeminiSearch({
       model,
+      purpose: `enrich:${company.domain}`,
       messages: [
         {
           role: "system",
@@ -522,10 +511,8 @@ export async function enrichCompanyViaOpenAI(
         },
         { role: "user", content: prompt },
       ],
-      web_search_options: {},
     });
 
-    const content = response.choices?.[0]?.message?.content ?? "";
     const { parsed } = parseLlmJson(content);
     const enrichment = deepDive ? toDeepDiveRecord(parsed) : toEnrichmentRecord(parsed);
     const latencyMs = Date.now() - start;

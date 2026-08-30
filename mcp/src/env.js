@@ -40,8 +40,8 @@ export function loadServerEnv() {
 export function describeConfig() {
   return {
     geminiKeyPresent: Boolean(process.env.GEMINI_API_KEY),
-    lightModel: process.env.LIGHT_LLM_MODEL ?? "gemini-3.5-flash-lite",
-    heavyModel: process.env.HEAVY_LLM_MODEL ?? "gemini-3.6-flash",
+    lightModel: process.env.LIGHT_LLM_MODEL ?? "gemini-flash-latest",
+    heavyModel: process.env.HEAVY_LLM_MODEL ?? "gemini-flash-latest",
     skipHeavySearch: process.env.SKIP_HEAVY_SEARCH === "true",
     discoveryLimit: process.env.OPENAI_DISCOVERY_LIMIT ?? null,
     resultCap: process.env.PE_RESULT_CAP ?? null,

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "zoron": {
+      "command": "/Users/shaurya/.nvm/versions/node/v24.6.0/bin/node",
+      "args": [
+        "/Users/shaurya/Documents/gemini-hackday/mcp/src/index.js"
+      ],
+      "env": {}
+    }
+  }
+}

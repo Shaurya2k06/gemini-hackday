@@ -1,25 +1,14 @@
 /**
  * Extract a custom table column via per-company web research.
  */
-import OpenAI from "openai";
 import { logger } from "../lib/logger.js";
 import { parseLlmJson } from "../lib/parse-llm-json.js";
+import { callGeminiSearch } from "../lib/llm.js";
 import { getHeavySearchModel } from "../heavy_agent/openai-search.js";
 
 export const MAX_CUSTOM_COLUMN_QUERY_LENGTH = 200;
 export const MAX_SUMMARY_CHARS = 500;
 const DEFAULT_CONCURRENCY = 4;
-
-let client;
-
-function getClient() {
-  if (!client) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
-    client = new OpenAI({ apiKey });
-  }
-  return client;
-}
 
 function truncate(text, max) {
   const s = String(text ?? "").trim();
@@ -187,9 +176,9 @@ async function runPool(items, concurrency, worker) {
 async function defaultSearchCaller({ prompt, domain }) {
   const model = getHeavySearchModel();
   const start = Date.now();
-  const openai = getClient();
-  const response = await openai.chat.completions.create({
+  const { content } = await callGeminiSearch({
     model,
+    purpose: `custom_column:${domain}`,
     messages: [
       {
         role: "system",
@@ -198,9 +187,7 @@ async function defaultSearchCaller({ prompt, domain }) {
       },
       { role: "user", content: prompt },
     ],
-    web_search_options: {},
   });
-  const content = response.choices?.[0]?.message?.content ?? "";
   logger.externalCall({
     source: "openai",
     query: `custom_column:${domain}`,
