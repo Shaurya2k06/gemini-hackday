@@ -298,7 +298,7 @@ async function runDiscoveryAttempt(structured, { limit, onProgress, broader = fa
     : "You are a PE deal-sourcing research agent. Use web search to find real companies matching the mandate. Return strict JSON only.";
 
   try {
-    const { content } = await callGeminiSearch({
+    const { content, truncated } = await callGeminiSearch({
       model,
       purpose: "heavy_gemini_web_search",
       messages: [
@@ -315,7 +315,23 @@ async function runDiscoveryAttempt(structured, { limit, onProgress, broader = fa
     const results = list.map(toResult).filter(Boolean).slice(0, limit);
     const latencyMs = Date.now() - start;
 
-    return { results, latencyMs, model, rawCount: list.length, error: null, jsonRepaired: repaired };
+    if (truncated) {
+      logger.info("openai_web_search_truncated", {
+        model,
+        recovered: results.length,
+        rawCount: list.length,
+      });
+    }
+
+    return {
+      results,
+      latencyMs,
+      model,
+      rawCount: list.length,
+      error: null,
+      jsonRepaired: repaired,
+      truncated: Boolean(truncated),
+    };
   } catch (error) {
     const latencyMs = Date.now() - start;
     return {
@@ -325,6 +341,7 @@ async function runDiscoveryAttempt(structured, { limit, onProgress, broader = fa
       rawCount: 0,
       error: error.message,
       jsonRepaired: false,
+      truncated: false,
     };
   }
 }

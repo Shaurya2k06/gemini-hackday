@@ -144,11 +144,21 @@ export async function callStructuredLlm({
   }
 }
 
-export async function callGeminiSearch({ model, messages, purpose, maxTokens = 4096 }) {
+export async function callGeminiSearch({ model, messages, purpose, maxTokens = 16384 }) {
   const start = Date.now();
   try {
+    // Grounded search spends a large share of the output budget on reasoning
+    // tokens, so this ceiling is deliberately generous: too low a value gets
+    // the company list cut off mid-JSON.
     const response = await generateContent({ model, messages, maxTokens, search: true });
-    return { content: responseText(response), model, latencyMs: Date.now() - start };
+    const finishReason = response.candidates?.[0]?.finishReason ?? null;
+    return {
+      content: responseText(response),
+      model,
+      latencyMs: Date.now() - start,
+      finishReason,
+      truncated: finishReason === "MAX_TOKENS",
+    };
   } catch (error) {
     error.purpose = purpose;
     throw error;
