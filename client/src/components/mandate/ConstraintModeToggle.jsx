@@ -10,13 +10,13 @@ export function ConstraintModeToggle({ value = 'heavy', onChange, disabled = fal
 
   return (
     <div
-      className="relative shrink-0 inline-flex items-center rounded-full border border-[#dfdcd5] dark:border-[#444] bg-[#f5f4f1] dark:bg-[#1a1a1a] p-0.5"
+      className="relative shrink-0 inline-flex items-center rounded-full border border-hairline bg-[#fbf7ec] p-0.5"
       role="group"
       aria-label="Search constraint mode"
     >
       <span
         aria-hidden
-        className="absolute top-0.5 bottom-0.5 left-0.5 w-[calc(50%-2px)] rounded-full bg-white dark:bg-[#2a2a2a] shadow-sm border border-[#dfdcd5]/80 dark:border-[#444] transition-transform duration-200 ease-out"
+        className="absolute top-0.5 bottom-0.5 left-0.5 w-[calc(50%-2px)] rounded-full bg-cream shadow-sm border border-hairline transition-transform duration-200 ease-out"
         style={{ transform: `translateX(${activeIndex * 100}%)` }}
       />
       {MODES.map((mode) => {
@@ -28,10 +28,10 @@ export function ConstraintModeToggle({ value = 'heavy', onChange, disabled = fal
             disabled={disabled}
             onClick={() => onChange?.(mode.id)}
             aria-pressed={selected}
-            className={`relative z-10 min-w-[2.75rem] px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`relative z-10 min-w-[2.75rem] px-2.5 py-1 rounded-full font-mono text-[10px] font-medium uppercase tracking-[0.06em] transition-colors border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
               selected
-                ? 'text-black dark:text-white'
-                : 'text-[#595855] dark:text-[#888] hover:text-black dark:hover:text-white'
+                ? 'text-ink'
+                : 'text-secondary hover:text-ink'
             }`}
           >
             {mode.label}
