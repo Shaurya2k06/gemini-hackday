@@ -1,0 +1,488 @@
+[
+  {
+    "id": "fintech_sf",
+    "input": "Find fintech startups in San Francisco",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "fintech"
+      ],
+      "funding_stage": [],
+      "geography": [
+        "San Francisco"
+      ],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "stripe.com",
+      "plaid.com",
+      "mercury.com"
+    ]
+  },
+  {
+    "id": "series_b_devtools",
+    "input": "Series B developer tools companies",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "developer_tools"
+      ],
+      "funding_stage": [
+        "series_b"
+      ],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "linear.app",
+      "replicate.com"
+    ]
+  },
+  {
+    "id": "any_stage",
+    "input": "AI companies, any stage is fine",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "ai"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "anthropic.com",
+      "cursor.com"
+    ]
+  },
+  {
+    "id": "geography_doesnt_matter",
+    "input": "Seed-stage productivity software, geography doesn't matter",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "developer_tools",
+        "no_code"
+      ],
+      "funding_stage": [
+        "seed"
+      ],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "lovable.dev"
+    ]
+  },
+  {
+    "id": "employee_range",
+    "input": "Companies with 100 to 500 employees in fintech",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "fintech"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": 100,
+      "employees_max": 500,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": []
+  },
+  {
+    "id": "founded_after_2020",
+    "input": "Startups founded after 2020 building AI developer tools",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "ai",
+        "developer_tools"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": "2020-01-01",
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "cursor.com",
+      "lovable.dev",
+      "firecrawl.dev"
+    ]
+  },
+  {
+    "id": "revenue_range",
+    "input": "Companies with $10M-$50M EBITDA in payments",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "payments"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": 10000000,
+      "revenue_max": 50000000,
+      "keywords": [
+        "EBITDA"
+      ]
+    },
+    "expect_sql_match": []
+  },
+  {
+    "id": "series_c_plus_design",
+    "input": "Series C or later design platforms",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "design"
+      ],
+      "funding_stage": [
+        "series_c_plus"
+      ],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "figma.com"
+    ]
+  },
+  {
+    "id": "nyc_fintech",
+    "input": "Fintech companies headquartered in New York",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "fintech"
+      ],
+      "funding_stage": [],
+      "geography": [
+        "New York"
+      ],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "ramp.com"
+    ]
+  },
+  {
+    "id": "pre_seed_unknown",
+    "input": "Very early pre-seed companies in data infrastructure",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "data",
+        "infrastructure"
+      ],
+      "funding_stage": [
+        "pre-seed"
+      ],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": []
+  },
+  {
+    "id": "keyword_payments_api",
+    "input": "Companies with payments API infrastructure",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": [
+        "payments",
+        "API"
+      ]
+    },
+    "expect_sql_match": [
+      "stripe.com",
+      "plaid.com"
+    ]
+  },
+  {
+    "id": "ambiguous_small_saas",
+    "input": "Small SaaS businesses",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "saas"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": 50,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": [
+        "small"
+      ]
+    },
+    "expect_sql_match": []
+  },
+  {
+    "id": "series_a_only",
+    "input": "Series A AI startups in San Francisco",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "ai"
+      ],
+      "funding_stage": [
+        "series_a"
+      ],
+      "geography": [
+        "San Francisco"
+      ],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "cursor.com"
+    ]
+  },
+  {
+    "id": "hr_payroll",
+    "input": "Global payroll and HR software companies",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "hr",
+        "payroll"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": [
+        "global"
+      ]
+    },
+    "expect_sql_match": [
+      "deel.com"
+    ]
+  },
+  {
+    "id": "open_source_database",
+    "input": "Open source database companies",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "database",
+        "open_source"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "supabase.com"
+    ]
+  },
+  {
+    "id": "founded_before_2015",
+    "input": "Companies founded before 2015 in payments",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "fintech"
+      ],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": "2015-01-01",
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "stripe.com",
+      "plaid.com"
+    ]
+  },
+  {
+    "id": "edge_empty_query_fields",
+    "input": "Show me companies",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": "all"
+  },
+  {
+    "id": "stockholm_ai",
+    "input": "AI startups in Stockholm",
+    "llm_output": {
+      "intent": "mandate_search",
+      "company_names": [],
+      "sector_tags": [
+        "ai"
+      ],
+      "funding_stage": [],
+      "geography": [
+        "Stockholm"
+      ],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "lovable.dev"
+    ]
+  },
+  {
+    "id": "cursor_investment",
+    "input": "Tell me about cursor as an investment",
+    "llm_output": {
+      "intent": "company_lookup",
+      "company_names": [
+        "Cursor"
+      ],
+      "sector_tags": [],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "cursor.com"
+    ]
+  },
+  {
+    "id": "stripe_research",
+    "input": "What do you know about Stripe as an investment?",
+    "llm_output": {
+      "intent": "company_lookup",
+      "company_names": [
+        "Stripe"
+      ],
+      "sector_tags": [],
+      "funding_stage": [],
+      "geography": [],
+      "employees_min": null,
+      "employees_max": null,
+      "founded_after": null,
+      "founded_before": null,
+      "revenue_min": null,
+      "revenue_max": null,
+      "keywords": []
+    },
+    "expect_sql_match": [
+      "stripe.com"
+    ]
+  }
+]
