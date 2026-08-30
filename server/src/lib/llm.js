@@ -200,7 +200,13 @@ export async function transcribeAudio({ base64Audio, mimeType, purpose = "voice_
   }
 }
 
-export async function callGeminiSearch({ model, messages, purpose, maxTokens = 16384 }) {
+export async function callGeminiSearch({
+  model,
+  messages,
+  purpose,
+  maxTokens = 16384,
+  schema = null,
+}) {
   const start = Date.now();
 
   // Grounded search spends a large share of the output budget on reasoning
