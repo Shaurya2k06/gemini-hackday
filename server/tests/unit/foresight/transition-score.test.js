@@ -6,7 +6,7 @@ import {
   isUsableSignal,
   rankByTransition,
 } from "../../../src/foresight/transition-score.js";
-import { HORIZON_BASE_RATE } from "../../../src/foresight/signals.js";
+import { HORIZON_BASE_RATE, baseRateForHorizon } from "../../../src/foresight/signals.js";
 
 function sig(key, overrides = {}) {
   return {
@@ -179,4 +179,48 @@ test("scoreTransition tolerates malformed input", () => {
   assert.equal(scoreTransition(null).score, 0);
   assert.equal(scoreTransition(undefined).score, 0);
   assert.equal(scoreTransition([null, undefined, 42, "x"]).score, 0);
+});
+
+// --- horizon must travel with the score ------------------------------------
+// An earlier version fixed the horizon at six months while backtests evaluated
+// multi-year windows, so a company correctly scored "not selling soon" counted
+// as a miss for selling years later.
+
+test("base rate scales with the horizon", () => {
+  assert.ok(baseRateForHorizon(6) < baseRateForHorizon(12));
+  assert.ok(baseRateForHorizon(12) < baseRateForHorizon(36));
+  assert.equal(baseRateForHorizon(12), 0.03, "one year equals the annual base rate");
+  assert.ok(baseRateForHorizon(600) <= 0.75, "clamped to a plausible ceiling");
+  assert.throws(() => baseRateForHorizon(0), /Invalid horizonMonths/);
+  assert.throws(() => baseRateForHorizon(-3), /Invalid horizonMonths/);
+});
+
+test("the reported horizon and base rate match what was requested", () => {
+  const short = scoreTransition([sig("advisor_engaged")], { horizonMonths: 6 });
+  const long = scoreTransition([sig("advisor_engaged")], { horizonMonths: 38 });
+
+  assert.equal(short.horizonMonths, 6);
+  assert.equal(long.horizonMonths, 38);
+  assert.ok(long.baseRate > short.baseRate);
+  assert.ok(
+    long.probability > short.probability,
+    "the same evidence implies a higher chance over a longer window"
+  );
+});
+
+test("lift is horizon-invariant so ranking is unaffected by window length", () => {
+  const signals = [sig("advisor_engaged"), sig("corp_dev_hire")];
+  const short = scoreTransition(signals, { horizonMonths: 6 });
+  const long = scoreTransition(signals, { horizonMonths: 38 });
+
+  assert.equal(short.score, long.score, "the score itself is horizon-free");
+  assert.ok(
+    Math.abs(short.lift - long.lift) < 0.01,
+    "lift over base rate should not depend on the window"
+  );
+});
+
+test("caveat reports the horizon actually used", () => {
+  const result = scoreTransition([sig("advisor_engaged")], { horizonMonths: 38 });
+  assert.match(result.caveat, /Base rate over 38 months/);
 });

@@ -7,6 +7,8 @@ import {
   enforceCutoff,
   auditPointInTime,
   buildCutoffInstruction,
+  monthsBetween,
+  addMonths,
 } from "../../../src/foresight/point-in-time.js";
 
 function sig(key, evidence_date, extra = {}) {
@@ -158,4 +160,22 @@ test("cutoff instruction states the constraint unambiguously", () => {
 test("enforceCutoff tolerates malformed signal arrays", () => {
   assert.equal(enforceCutoff(null, "2024-06-30").kept.length, 0);
   assert.equal(enforceCutoff([null, 5, "x"], "2024-06-30").kept.length, 0);
+});
+
+// --- window arithmetic used to derive a scoring horizon --------------------
+
+test("monthsBetween measures whole months and refuses inverted windows", () => {
+  assert.equal(monthsBetween("2023-06-30", "2023-12-30"), 6);
+  assert.equal(monthsBetween("2023-06-30", "2024-06-30"), 12);
+  assert.equal(monthsBetween("2023-06-30", "2026-08-30"), 38);
+  assert.equal(monthsBetween("2023-06-30", "2023-12-15"), 5, "partial month rounds down");
+  assert.equal(monthsBetween("2023-06-30", "2023-07-01"), 1, "never returns zero");
+  assert.throws(() => monthsBetween("2024-06-30", "2023-06-30"), /must be after/);
+  assert.throws(() => monthsBetween("2024-06-30", "2024-06-30"), /must be after/);
+});
+
+test("addMonths shifts a date forward and round-trips with monthsBetween", () => {
+  assert.equal(addMonths("2023-06-30", 6), "2023-12-30");
+  assert.equal(addMonths("2023-01-31", 1), "2023-03-03", "month-end overflow is explicit");
+  assert.equal(monthsBetween("2023-06-30", addMonths("2023-06-30", 24)), 24);
 });
