@@ -87,20 +87,20 @@ export function ChatSidebar({ open, onToggle, refreshKey = 0, activeChatId = nul
   return (
     <>
       <aside
-        className={`shrink-0 h-full border-r border-[#dfdcd5] dark:border-[#222] bg-[#f5f4f1] dark:bg-[#111] transition-[width] duration-200 ease-out overflow-hidden ${
+        className={`shrink-0 h-full border-r border-hairline bg-[#fbf7ec] transition-[width] duration-200 ease-out overflow-hidden ${
           open ? 'w-[240px]' : 'w-0'
         }`}
       >
         {open ? (
           <div className="w-[240px] h-full flex flex-col">
-            <div className="flex items-center justify-between px-3 py-3 border-b border-[#dfdcd5] dark:border-[#222]">
-              <span className="text-xs font-medium uppercase tracking-wider text-[#595855] dark:text-[#808080]">
+            <div className="flex items-center justify-between px-3 h-16 border-b border-hairline">
+              <span className="font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-[#8f8b80]">
                 Recent
               </span>
               <button
                 type="button"
                 onClick={onToggle}
-                className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer text-[#595855] dark:text-[#808080]"
+                className="p-1 hover:bg-ink/5 border-none bg-transparent cursor-pointer text-secondary"
                 aria-label="Collapse sidebar"
               >
                 <ChevronLeft size={16} />
@@ -111,7 +111,7 @@ export function ChatSidebar({ open, onToggle, refreshKey = 0, activeChatId = nul
               <button
                 type="button"
                 onClick={handleNewChat}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-black text-white dark:bg-white dark:text-black border-none cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-1.5 h-[36px] px-3 font-mono text-[11px] uppercase tracking-[0.06em] bg-accent-red text-white border-none cursor-pointer hover:brightness-105 transition-all"
               >
                 <Plus size={12} />
                 New screening
@@ -120,13 +120,13 @@ export function ChatSidebar({ open, onToggle, refreshKey = 0, activeChatId = nul
 
             <div className="flex-1 overflow-y-auto px-2 pb-2 space-y-1">
               {loading ? (
-                <p className="text-xs text-[#595855] dark:text-[#808080] px-2 py-3">Loading…</p>
+                <p className="text-[13px] text-secondary px-2 py-3">Loading…</p>
               ) : null}
               {error ? (
-                <p className="text-xs text-amber-700 dark:text-amber-400 px-2 py-2">{error}</p>
+                <p className="text-[13px] font-mono text-accent-red px-2 py-2">{error}</p>
               ) : null}
               {!loading && !error && chats.length === 0 ? (
-                <p className="text-xs text-[#595855] dark:text-[#808080] px-2 py-3 leading-relaxed">
+                <p className="text-[13px] text-secondary px-2 py-3 leading-relaxed">
                   No saved screenings yet. Run a search — chats appear after a shortlist table is ready.
                 </p>
               ) : null}
@@ -138,22 +138,22 @@ export function ChatSidebar({ open, onToggle, refreshKey = 0, activeChatId = nul
                     type="button"
                     onClick={() => handleOpenChat(chat.id)}
                     disabled={Boolean(openingId)}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg border-none cursor-pointer disabled:opacity-50 ${
+                    className={`w-full text-left px-2.5 py-2 border-none cursor-pointer disabled:opacity-50 transition-colors ${
                       active
-                        ? 'bg-black/10 dark:bg-white/10'
-                        : 'bg-transparent hover:bg-black/5 dark:hover:bg-white/5'
+                        ? 'bg-cream border-l-2 border-accent-red'
+                        : 'bg-transparent hover:bg-cream'
                     }`}
                   >
                     <div className="flex items-start gap-2">
                       <MessageSquare
                         size={14}
-                        className="mt-0.5 shrink-0 text-[#595855] dark:text-[#808080]"
+                        className="mt-0.5 shrink-0 text-secondary"
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-black dark:text-white truncate font-medium">
+                        <p className="text-[13px] text-ink truncate font-medium">
                           {chat.title}
                         </p>
-                        <p className="text-[10px] text-[#595855] dark:text-[#808080] mt-0.5">
+                        <p className="text-[10px] font-mono text-[#8f8b80] mt-0.5">
                           {openingId === chat.id
                             ? 'Opening…'
                             : `${chat.companyCount} companies · ${formatRelative(chat.updatedAt)}`}
@@ -165,14 +165,14 @@ export function ChatSidebar({ open, onToggle, refreshKey = 0, activeChatId = nul
               })}
             </div>
 
-            <div className="border-t border-[#dfdcd5] dark:border-[#222] px-3 py-2 flex items-center justify-between gap-2">
-              <span className="text-[11px] text-[#595855] dark:text-[#808080] truncate">
+            <div className="border-t border-hairline px-3 py-2.5 flex items-center justify-between gap-2">
+              <span className="text-[11px] text-secondary truncate">
                 {user?.username}
               </span>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] text-[#595855] dark:text-[#808080] hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer"
+                className="inline-flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.06em] text-secondary hover:text-accent-red hover:bg-ink/5 border-none bg-transparent cursor-pointer transition-colors"
                 title="Log out"
               >
                 <LogOut size={12} />
@@ -187,7 +187,7 @@ export function ChatSidebar({ open, onToggle, refreshKey = 0, activeChatId = nul
         <button
           type="button"
           onClick={onToggle}
-          className="fixed left-3 top-1/2 -translate-y-1/2 z-40 p-2 rounded-full bg-white dark:bg-[#161616] border border-[#dfdcd5] dark:border-[#333] shadow-md cursor-pointer text-[#595855] dark:text-[#a0a0a0] hover:text-black dark:hover:text-white"
+          className="fixed left-3 top-1/2 -translate-y-1/2 z-40 p-2 bg-cream border border-hairline shadow-md cursor-pointer text-secondary hover:text-ink transition-colors"
           aria-label="Open recent chats"
         >
           <ChevronRight size={16} />

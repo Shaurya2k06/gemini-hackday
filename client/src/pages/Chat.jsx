@@ -1,8 +1,8 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sun, Moon } from 'lucide-react';
-import { ThemeContext } from '../App';
+import { ArrowLeft } from 'lucide-react';
+import { Monogram } from '../components/brand/Brand';
 import { MandateComposer } from '../components/mandate/MandateComposer';
 import { PipelineProgress } from '../components/discovery/PipelineProgress';
 import { PromptCoachBanner } from '../components/discovery/PromptCoachBanner';
@@ -29,7 +29,7 @@ import {
 function AssistantBubble({ children }) {
   return (
     <div className="flex justify-start">
-      <div className="max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed bg-white dark:bg-[#161616] border border-[#dfdcd5] dark:border-[#2a2a2a] text-[#333] dark:text-[#e0e0e0] whitespace-pre-wrap">
+      <div className="max-w-[90%] px-4 py-3 text-[14px] leading-relaxed bg-[#fbf7ec] border border-hairline text-ink whitespace-pre-wrap">
         {children}
       </div>
     </div>
@@ -38,7 +38,6 @@ function AssistantBubble({ children }) {
 
 function Chat() {
   const navigate = useNavigate();
-  const { isDark, toggleTheme } = useContext(ThemeContext);
   const composerRef = useRef(null);
 
   const [exampleMandates] = useState(() => pickRandomMandates(4));
@@ -246,52 +245,62 @@ function Chat() {
   };
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-background text-black dark:text-white transition-colors duration-300">
+    <div className="h-screen w-screen flex overflow-hidden bg-cream text-ink font-sans antialiased">
       <ChatSidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen((v) => !v)}
         refreshKey={sidebarRefreshKey}
       />
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-3xl h-12 bg-white/70 dark:bg-black/70 backdrop-blur-md border border-border/80 shadow-md rounded-full px-4 flex items-center justify-between z-50 transition-all duration-300">
+      <header className="shrink-0 h-16 bg-cream/95 backdrop-blur border-b border-hairline px-4 md:px-6 flex items-center justify-between z-40">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+            className="p-1.5 text-secondary hover:text-ink transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
+            aria-label="Back to home"
           >
             <ArrowLeft size={16} />
           </button>
-          <span className="font-davinci font-semibold text-sm tracking-wide">Zoron</span>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2.5 bg-transparent border-none cursor-pointer p-0"
+          >
+            <Monogram />
+            <span className="font-sans font-bold text-[15px] tracking-tight">Zoron</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center"
-        >
-          {isDark ? <Sun size={16} className="text-amber-500" /> : <Moon size={16} />}
-        </button>
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-[#8f8b80] hidden sm:inline">
+          New Mandate
+        </span>
       </header>
 
-      <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain pt-20" data-lenis-prevent>
-        <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-8">
-          <div className="pt-8 pb-4 text-center">
-            <h1 className="font-davinci text-3xl md:text-4xl font-medium tracking-tight mb-3">
-              Set screening criteria
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain" data-lenis-prevent>
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-10 space-y-8">
+          <div className="pt-6 pb-2 text-center">
+            <div className="flex items-center justify-center gap-2 mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-red" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-accent-red">
+                Plain-English Mandate
+              </span>
+            </div>
+            <h1 className="font-sans text-[32px] md:text-[42px] font-semibold tracking-[-0.02em] leading-[1.05] mb-4">
+              Set your screening criteria.
             </h1>
-            <p className="text-sm text-[#595855] dark:text-[#808080] max-w-md mx-auto leading-relaxed">
-              Describe criteria in plain language, Send when ready
-              for a 10-company at-a-glance shortlist.
+            <p className="text-[15px] text-secondary max-w-md mx-auto leading-[1.55]">
+              Describe your target in plain language — sector, geography, revenue or EBITDA bands.
+              Send when ready for a ranked, at-a-glance shortlist.
             </p>
             {thesisError ? (
-              <p className="mt-3 text-sm text-amber-700 dark:text-amber-400">{thesisError}</p>
+              <p className="mt-4 text-[13px] text-accent-red font-mono">{thesisError}</p>
             ) : null}
           </div>
 
           {infoReplies.map((item, idx) => (
             <div key={idx} className="space-y-3">
               <div className="flex justify-end">
-                <div className="max-w-[90%] rounded-2xl px-4 py-3 text-sm bg-black text-white dark:bg-white dark:text-black">
+                <div className="max-w-[90%] px-4 py-3 text-[14px] leading-relaxed bg-ink text-cream">
                   {item.question}
                 </div>
               </div>
@@ -306,26 +315,31 @@ function Chat() {
           ) : null}
 
           {!processing && infoReplies.length === 0 ? (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {exampleMandates.map((chip) => (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => {
-                    setComposerInput('');
-                    composerRef.current?.commitText?.(chip);
-                  }}
-                  className="px-3 py-1.5 rounded-full text-xs bg-white dark:bg-[#161616] border border-[#dfdcd5] dark:border-[#333] text-[#595855] dark:text-[#a0a0a0] hover:border-black/30 dark:hover:border-white/30 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
-                >
-                  {chip}
-                </button>
-              ))}
+            <div className="flex flex-col items-center gap-3">
+              <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#8f8b80]">
+                Try an example
+              </span>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {exampleMandates.map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => {
+                      setComposerInput('');
+                      composerRef.current?.commitText?.(chip);
+                    }}
+                    className="px-3 py-1.5 text-[12px] bg-[#fbf7ec] border border-hairline text-secondary hover:border-ink/40 hover:text-ink transition-colors cursor-pointer"
+                  >
+                    {chip}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : null}
         </div>
       </main>
 
-      <footer className="shrink-0 border-t border-border bg-background px-4 md:px-6 py-4">
+      <footer className="shrink-0 border-t border-hairline bg-cream px-4 md:px-6 py-4">
         <div className="max-w-3xl mx-auto space-y-3">
           <AnimatePresence>
             {promptCoach && !processing ? (

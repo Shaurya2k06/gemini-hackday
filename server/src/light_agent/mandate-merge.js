@@ -239,12 +239,26 @@ function flattenCompoundGeography(geography) {
   return out;
 }
 
+/**
+ * Drops leading/trailing filler words (e.g. "and the") that a preposition match
+ * can pick up once the real place name has already been extracted elsewhere,
+ * so a bare connective sequence never surfaces as a fake place.
+ */
+function stripStopwordEdges(text) {
+  const words = String(text ?? "").split(/\s+/).filter(Boolean);
+  let start = 0;
+  let end = words.length;
+  while (start < end && STOP_WORDS.has(normalizeKey(words[start]))) start++;
+  while (end > start && STOP_WORDS.has(normalizeKey(words[end - 1]))) end--;
+  return words.slice(start, end).join(" ");
+}
+
 function extractPrepositionalLocation(text) {
   const source = String(text ?? "");
   const match = source.match(PREPOSITION_LOCATION_RE);
   if (!match) return { geography: [], remaining: source };
 
-  const captured = match[1].trim();
+  const captured = stripStopwordEdges(match[1].trim());
   if (!captured || STOP_WORDS.has(normalizeKey(captured))) {
     return { geography: [], remaining: source };
   }
@@ -1054,6 +1068,32 @@ export function rebuildFromAccumulatedText(accumulatedText, llmStructured = null
   return merged;
 }
 
+/** "Only/just France" narrows a field to the new values instead of appending to it. */
+const RESTRICT_CUES = /\b(only|just|exclusively|solely)\b/i;
+/** "Exclude/remove/don't want France" drops matching values instead of adding them. */
+export const EXCLUDE_CUES =
+  /\b(exclude|excluding|except|remove|removing|drop|dropping|don'?t want|do\s+not\s+want|no\s+longer\s+want|not\s+interested\s+in|skip|skipping)\b/i;
+
+/**
+ * Combines a prior list value with a freshly-parsed addition for one field,
+ * honoring "only X" (replace) and "exclude X" (subtract) phrasing in the raw
+ * fragment. Falls back to the default additive merge otherwise.
+ */
+function resolveListField({ prior = [], addition = [], syntax = [], fragmentText = "", dedupe }) {
+  const newValues = dedupe([...(addition ?? []), ...(syntax ?? [])]);
+
+  if (newValues.length && EXCLUDE_CUES.test(fragmentText)) {
+    const removeKeys = new Set(newValues.map((v) => normalizeKey(v)));
+    return prior.filter((v) => !removeKeys.has(normalizeKey(v)));
+  }
+
+  if (newValues.length && RESTRICT_CUES.test(fragmentText)) {
+    return newValues;
+  }
+
+  return dedupe([...(prior ?? []), ...newValues]);
+}
+
 export function mergeIncrementalMandate(prior, addition, fragmentText = "") {
   if (!prior && !addition) return null;
 
@@ -1061,21 +1101,27 @@ export function mergeIncrementalMandate(prior, addition, fragmentText = "") {
   const llmLike = {
     ...emptyStructured(prior?.intent ?? "mandate_search"),
     ...prior,
-    geography: dedupeList([
-      ...(prior?.geography ?? []),
-      ...(addition?.geography ?? []),
-      ...(syntaxPatch.geography ?? []),
-    ]),
-    sector_tags: dedupeList([
-      ...(prior?.sector_tags ?? []),
-      ...(addition?.sector_tags ?? []),
-      ...(syntaxPatch.sector_tags ?? []),
-    ]),
-    funding_stage: dedupeStages([
-      ...(prior?.funding_stage ?? []),
-      ...(addition?.funding_stage ?? []),
-      ...(syntaxPatch.funding_stage ?? []),
-    ]),
+    geography: resolveListField({
+      prior: prior?.geography,
+      addition: addition?.geography,
+      syntax: syntaxPatch.geography,
+      fragmentText,
+      dedupe: dedupeList,
+    }),
+    sector_tags: resolveListField({
+      prior: prior?.sector_tags,
+      addition: addition?.sector_tags,
+      syntax: syntaxPatch.sector_tags,
+      fragmentText,
+      dedupe: dedupeList,
+    }),
+    funding_stage: resolveListField({
+      prior: prior?.funding_stage,
+      addition: addition?.funding_stage,
+      syntax: syntaxPatch.funding_stage,
+      fragmentText,
+      dedupe: dedupeStages,
+    }),
     keywords: dedupeList([
       ...(prior?.keywords ?? []),
       ...(addition?.keywords ?? []),

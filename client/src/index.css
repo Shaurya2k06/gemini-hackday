@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,19 +12,33 @@
 }
 
 :root {
-  /* Structured System Colors */
-  --color-putty: #c4c3b6;
-  --color-ink: #000000;
-  --color-bone: #e7e5e4;
-  --color-chalk: #ebebeb;
-  --color-vellum: #dfdcd5;
-  --color-graphite: #595855;
-  --color-ash: #808080;
+  /* SafetyKit-inspired System Colors */
+  --color-cream: #f9f4e6;      /* primary warm background */
+  --color-ink: #141414;        /* near-black primary text & dark sections */
+  --color-secondary: #545454;  /* secondary grey text */
+  --color-muted: #b2afa4;      /* warm taupe — labels, dividers, subtle text */
+  --color-accent-red: #1E3A5F; /* signature accent */
+  --color-accent-blue: #64a7cc;
+  --color-accent-amber: #1E3A5F;
+  --color-accent-green: #0d8a56;
   --color-paper: #ffffff;
+  --color-hairline: rgba(20, 20, 20, 0.10); /* thin borders on cream */
+
+  /* Backwards-compatible aliases (older pages reference these) */
+  --color-putty: var(--color-cream);
+  --color-bone: #f2ecda;
+  --color-chalk: #f2ecda;
+  --color-vellum: rgba(20, 20, 20, 0.10);
+  --color-graphite: var(--color-secondary);
+  --color-ash: var(--color-muted);
 
   /* Typography Font Families */
-  --font-davinci: 'Playfair Display', Georgia, serif;
-  --font-helvetica-now: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Aliases keep existing font-davinci / font-helvetica-now utilities working */
+  --font-davinci: var(--font-sans);
+  --font-helvetica-now: var(--font-sans);
 
   /* Typography Scale */
   --text-body-sm: 15px;
@@ -60,27 +72,36 @@
   --spacing-96: 96px;
   --spacing-168: 168px;
 
-  /* Radii */
-  --radius-cards: 9px;
-  --radius-links: 2px;
-  --radius-buttons: 28.8px;
+  /* Radii — SafetyKit is square-cornered; only pills/dots round */
+  --radius-cards: 0px;
+  --radius-links: 0px;
+  --radius-buttons: 0px;
 
   /* Semantic UI mappings */
-  --background: var(--color-putty);
+  --background: var(--color-cream);
   --foreground: var(--color-ink);
-  --card: var(--color-bone);
+  --card: var(--color-cream);
   --card-foreground: var(--color-ink);
-  --border: var(--color-vellum);
-  --muted: var(--color-graphite);
+  --border: var(--color-hairline);
+  --input: var(--color-hairline);
+  --ring: var(--color-ink);
+  --muted: var(--color-muted);
+  --muted-foreground: var(--color-secondary);
+  --primary: var(--color-ink);
+  --primary-foreground: var(--color-cream);
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-cream);
+  --accent: var(--color-accent-red);
+  --accent-foreground: var(--color-cream);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--color-putty);
+  background-color: var(--color-cream);
   color: var(--color-ink);
-  font-family: var(--font-helvetica-now);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -88,20 +109,33 @@ body {
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--color-putty);
+  background-color: var(--color-cream);
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Custom Utilities for Structured System */
+/* Custom Utilities */
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Back-compat aliases */
 .font-davinci {
-  font-family: var(--font-davinci);
+  font-family: var(--font-sans);
 }
 
 .font-helvetica-now {
-  font-family: var(--font-helvetica-now);
+  font-family: var(--font-sans);
 }
 
 /* Hairline border utility */
@@ -128,10 +162,10 @@ html {
   );
 }
 
-/* Subtle selection color matching putty/ink */
+/* Selection matches ink/cream */
 ::selection {
-  background-color: #000000;
-  color: #c4c3b6;
+  background-color: #141414;
+  color: #f9f4e6;
 }
 
 /* View Transitions Support */

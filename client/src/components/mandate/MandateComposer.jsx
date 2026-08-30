@@ -1,11 +1,12 @@
 import React, { useState, useCallback, forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
-import { Plus, FileUp, FormInput } from 'lucide-react';
+import { Plus, FileUp, FormInput, Mic, Square, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CriterionPills } from './CriterionPills';
 import { ConstraintModeToggle } from './ConstraintModeToggle';
 import { ManualFieldsForm } from './ManualFieldsForm';
 import { friendlyChatError } from '../../lib/chatErrors';
 import { apiFetch } from '../../lib/api';
+import { pickAudioMimeType } from '../../lib/audioRecording';
 
 function looksLikeChatQuestion(text) {
   const trimmed = String(text ?? '').trim();
@@ -46,6 +47,12 @@ export const MandateComposer = forwardRef(function MandateComposer(
   const [manualFormOpen, setManualFormOpen] = useState(false);
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState(null);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [voiceTranscribing, setVoiceTranscribing] = useState(false);
+  const [voiceError, setVoiceError] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const voiceChunksRef = useRef([]);
+  const voiceStreamRef = useRef(null);
 
   useEffect(() => {
     if (!plusMenuOpen) return;
@@ -57,6 +64,13 @@ export const MandateComposer = forwardRef(function MandateComposer(
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
   }, [plusMenuOpen]);
+
+  useEffect(() => {
+    return () => {
+      mediaRecorderRef.current?.stop();
+      voiceStreamRef.current?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
 
   const isMandateBuilder =
     intent === 'mandate_search' &&
@@ -84,6 +98,70 @@ export const MandateComposer = forwardRef(function MandateComposer(
     }
     setParseError(null);
     return nextIntent;
+  };
+
+  const stopVoiceStream = () => {
+    voiceStreamRef.current?.getTracks().forEach((track) => track.stop());
+    voiceStreamRef.current = null;
+  };
+
+  const handleVoiceStopped = async (mimeType) => {
+    stopVoiceStream();
+    const blob = new Blob(voiceChunksRef.current, { type: mimeType });
+    voiceChunksRef.current = [];
+
+    if (!blob.size) {
+      setVoiceError('No audio captured. Try again.');
+      return;
+    }
+
+    setVoiceTranscribing(true);
+    setVoiceError(null);
+    try {
+      const form = new FormData();
+      const ext = mimeType.includes('mp4') ? 'm4a' : 'webm';
+      form.append('audio', blob, `mandate.${ext}`);
+      if (structured) form.append('priorStructured', JSON.stringify(structured));
+      if (accumulatedText) form.append('accumulatedText', accumulatedText);
+      const res = await apiFetch('/mandate/parse-audio', { method: 'POST', body: form });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not transcribe audio');
+      applyParseResult(data);
+    } catch (err) {
+      setVoiceError(friendlyChatError(err.message, { intent }));
+    } finally {
+      setVoiceTranscribing(false);
+    }
+  };
+
+  const startVoiceRecording = async () => {
+    setVoiceError(null);
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setVoiceError('Microphone access is not supported in this browser.');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      voiceStreamRef.current = stream;
+      const mimeType = pickAudioMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      voiceChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) voiceChunksRef.current.push(e.data);
+      };
+      recorder.onstop = () => handleVoiceStopped(mimeType || recorder.mimeType || 'audio/webm');
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setVoiceRecording(true);
+    } catch {
+      setVoiceError('Microphone access was denied. Allow microphone access and try again.');
+      stopVoiceStream();
+    }
+  };
+
+  const stopVoiceRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setVoiceRecording(false);
   };
 
   const resetComposer = () => {
@@ -399,7 +477,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
           type="button"
           onClick={() => setAddMoreOpen(true)}
           disabled={disabled || parsing}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border border-dashed border-[#dfdcd5] dark:border-[#444] text-[#595855] dark:text-[#a0a0a0] hover:border-black/30 dark:hover:border-white/30 bg-transparent cursor-pointer disabled:opacity-40"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] border border-dashed border-ink/25 text-secondary hover:border-ink/50 hover:text-ink bg-transparent cursor-pointer disabled:opacity-40 transition-colors"
         >
           <Plus size={12} />
           Anything else you&apos;d like to add?
@@ -407,7 +485,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
       ) : null}
 
       {showMainInput && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#dfdcd5] dark:border-[#333] bg-white dark:bg-[#161616] px-2 py-2">
+        <div className="flex items-center gap-2 border border-ink/20 bg-[#fbf7ec] px-2 py-2 focus-within:border-ink/45 transition-colors">
           {showPlusEntry ? (
             <div className="relative shrink-0" ref={plusMenuRef}>
               <button
@@ -417,7 +495,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                 title="Add criteria"
                 aria-expanded={plusMenuOpen}
                 aria-haspopup="menu"
-                className="p-1.5 rounded-lg text-[#595855] dark:text-[#a0a0a0] hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white transition-colors border-none bg-transparent cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="p-1.5 text-secondary hover:bg-ink/5 hover:text-ink transition-colors border-none bg-transparent cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Plus size={16} />
               </button>
@@ -429,7 +507,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.16, ease: 'easeOut' }}
-                    className="absolute left-0 bottom-full mb-1 z-20 w-[220px] rounded-lg border border-[#dfdcd5] dark:border-[#333] bg-white dark:bg-[#161616] shadow-lg py-1 origin-bottom"
+                    className="absolute left-0 bottom-full mb-1 z-20 w-[220px] border border-hairline bg-cream shadow-lg py-1 origin-bottom"
                   >
                     <button
                       type="button"
@@ -439,9 +517,9 @@ export const MandateComposer = forwardRef(function MandateComposer(
                         setPlusMenuOpen(false);
                         thesisInputRef.current?.click();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer disabled:opacity-40"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-left text-ink hover:bg-[#fbf7ec] border-none bg-transparent cursor-pointer disabled:opacity-40"
                     >
-                      <FileUp size={14} className="shrink-0 text-[#595855] dark:text-[#808080]" />
+                      <FileUp size={14} className="shrink-0 text-secondary" />
                       Upload PDF
                     </button>
                     <button
@@ -452,9 +530,9 @@ export const MandateComposer = forwardRef(function MandateComposer(
                         setPlusMenuOpen(false);
                         setManualFormOpen(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-left text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 border-none bg-transparent cursor-pointer disabled:opacity-40"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-left text-ink hover:bg-[#fbf7ec] border-none bg-transparent cursor-pointer disabled:opacity-40"
                     >
-                      <FormInput size={14} className="shrink-0 text-[#595855] dark:text-[#808080]" />
+                      <FormInput size={14} className="shrink-0 text-secondary" />
                       Enter fields manually
                     </button>
                   </motion.div>
@@ -477,25 +555,50 @@ export const MandateComposer = forwardRef(function MandateComposer(
             onBlur={() => {
               if (input.trim()) handleBlurOrCommit({ autoSendChat: false });
             }}
-            disabled={disabled || parsing}
+            disabled={disabled || parsing || voiceRecording || voiceTranscribing}
             placeholder={
               parsing
                 ? 'Parsing…'
                 : thesisParsing
                   ? 'Reading thesis…'
-                  : isChatMode
-                    ? 'Ask a follow-up…'
-                    : pills.length
-                      ? 'Add another criterion…'
-                      : placeholder
+                  : voiceRecording
+                    ? 'Listening…'
+                    : voiceTranscribing
+                      ? 'Transcribing…'
+                      : isChatMode
+                        ? 'Ask a follow-up…'
+                        : pills.length
+                          ? 'Add another criterion…'
+                          : placeholder
             }
-            className="flex-1 min-w-0 bg-transparent border-none outline-none text-sm placeholder:text-[#595855]/60 dark:placeholder:text-[#666] disabled:opacity-50 py-1 px-1"
+            className="flex-1 min-w-0 bg-transparent border-none outline-none text-[14px] text-ink placeholder:text-[#8f8b80] disabled:opacity-50 py-1 px-1"
           />
+          <button
+            type="button"
+            onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+            disabled={disabled || parsing || thesisParsing || voiceTranscribing}
+            title={voiceRecording ? 'Stop recording' : 'Speak your criteria'}
+            className={`shrink-0 p-1.5 rounded-lg transition-colors border-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+              voiceRecording
+                ? 'bg-red-600 text-white hover:bg-red-700'
+                : 'bg-transparent text-[#595855] dark:text-[#a0a0a0] hover:bg-black/5 dark:hover:bg-white/5 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            {voiceTranscribing ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : voiceRecording ? (
+              <Square size={14} />
+            ) : (
+              <Mic size={16} />
+            )}
+          </button>
         </div>
       )}
 
+      {voiceError ? <p className="text-xs text-amber-700 dark:text-amber-400">{voiceError}</p> : null}
+
       {parseError || thesisParsing ? (
-        <p className="text-xs text-amber-700 dark:text-amber-400">
+        <p className="text-[12px] font-mono text-accent-red">
           {parseError ?? (thesisParsing ? 'Reading investment thesis…' : null)}
         </p>
       ) : null}
@@ -526,7 +629,7 @@ export const MandateComposer = forwardRef(function MandateComposer(
                 ? 'Ask'
                 : 'Run search'
           }
-          className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-black text-white dark:bg-white dark:text-black border-none disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-opacity cursor-pointer"
+          className="inline-flex items-center justify-center w-10 h-10 bg-accent-red text-white border-none disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-105 transition-all cursor-pointer"
         >
           <svg
             width="16"
