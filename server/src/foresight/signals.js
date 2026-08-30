@@ -122,11 +122,30 @@ export const NEGATIVE_SIGNAL_KEYS = Object.freeze(
  */
 export const ANNUAL_BASE_RATE = 0.03;
 
-/** Horizon the score refers to, in months. */
-export const HORIZON_MONTHS = 6;
+/** Default horizon a score refers to when none is supplied, in months. */
+export const DEFAULT_HORIZON_MONTHS = 6;
 
-/** Base rate over the scoring horizon rather than a full year. */
-export const HORIZON_BASE_RATE = ANNUAL_BASE_RATE * (HORIZON_MONTHS / 12);
+/**
+ * Base rate over an arbitrary horizon.
+ *
+ * The horizon must travel with the score. An earlier version hard-coded six
+ * months while backtests evaluated a multi-year window, which made the score
+ * and its own evaluation answer different questions — a company correctly
+ * scored "not selling within six months" was counted as a miss for selling
+ * three years later.
+ */
+export function baseRateForHorizon(horizonMonths = DEFAULT_HORIZON_MONTHS) {
+  const months = Number(horizonMonths);
+  if (!Number.isFinite(months) || months <= 0) {
+    throw new Error(`Invalid horizonMonths "${horizonMonths}" — must be a positive number.`);
+  }
+  // Linear scaling understates compounding over long spans, but stays honest at
+  // the ranges that matter and never exceeds a plausible ceiling.
+  return Math.min(0.75, ANNUAL_BASE_RATE * (months / 12));
+}
+
+/** Retained for callers that want the default-horizon base rate directly. */
+export const HORIZON_BASE_RATE = baseRateForHorizon(DEFAULT_HORIZON_MONTHS);
 
 export function isKnownSignal(key) {
   return Object.prototype.hasOwnProperty.call(SIGNALS, key);

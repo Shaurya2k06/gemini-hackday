@@ -67,6 +67,16 @@ function registerTransitionScore(server, store, pipeline) {
           "Score the company as it stood on this date. Defaults to today. " +
             "Use a past date to reason from a historical vantage point."
         ),
+        horizonMonths: z
+          .number()
+          .int()
+          .min(1)
+          .max(120)
+          .optional()
+          .describe(
+            "Window the probability refers to, in months. Defaults to 6. " +
+              "A longer horizon raises the base rate the score is measured against."
+          ),
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
@@ -82,7 +92,9 @@ function registerTransitionScore(server, store, pipeline) {
         return errorResult(`Signal extraction failed: ${observation.error}`);
       }
 
-      const score = pipeline.scoreTransition(observation.signals);
+      const score = pipeline.scoreTransition(observation.signals, {
+        horizonMonths: args.horizonMonths,
+      });
       const row = { ...observation, score };
 
       return textResult(renderScore(row), {
@@ -132,8 +144,19 @@ function registerBacktest(server, store, pipeline) {
         cutoff: DATE.describe(
           "Historical vantage point. Scoring may only use evidence dated on or before this."
         ),
+        horizonMonths: z
+          .number()
+          .int()
+          .min(1)
+          .max(120)
+          .optional()
+          .describe(
+            "Length of the outcome window in months. Defaults to 6. The scoring horizon " +
+              "is derived from this window, so the probability and the evaluation always " +
+              "cover the same span."
+          ),
         asOf: DATE.optional().describe(
-          "End of the outcome window. Defaults to today."
+          "Explicit window end, used instead of horizonMonths."
         ),
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
@@ -166,12 +189,14 @@ function registerBacktest(server, store, pipeline) {
 
       const report = await pipeline.runBacktest(candidates, {
         cutoff: args.cutoff,
+        horizonMonths: args.horizonMonths,
         asOf: args.asOf,
       });
 
       return textResult(pipeline.formatBacktest(report), {
         cutoff: report.cutoff,
         asOf: report.asOf,
+        horizonMonths: report.horizonMonths,
         candidates: report.candidates,
         evaluated: report.evaluated,
         unresolved: report.unresolved,

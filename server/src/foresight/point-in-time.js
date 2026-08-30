@@ -56,6 +56,35 @@ export function parseCutoff(cutoff) {
 }
 
 /**
+ * Whole-month span between two dates, rounded to the nearest month.
+ *
+ * Used to derive a scoring horizon from an evaluation window so the two can
+ * never disagree.
+ */
+export function monthsBetween(from, to) {
+  const fromTs = parseCutoff(from);
+  const toTs = parseCutoff(to);
+  if (toTs <= fromTs) {
+    throw new Error(`Evaluation window end "${to}" must be after "${from}".`);
+  }
+  const a = new Date(fromTs);
+  const b = new Date(toTs);
+  const months =
+    (b.getUTCFullYear() - a.getUTCFullYear()) * 12 +
+    (b.getUTCMonth() - a.getUTCMonth()) +
+    (b.getUTCDate() >= a.getUTCDate() ? 0 : -1);
+  return Math.max(1, months);
+}
+
+/** Shift a date forward by whole months, returned as YYYY-MM-DD. */
+export function addMonths(from, months) {
+  const ts = parseCutoff(from);
+  const d = new Date(ts);
+  d.setUTCMonth(d.getUTCMonth() + Number(months));
+  return d.toISOString().slice(0, 10);
+}
+
+/**
  * Detect language implying knowledge of an outcome.
  * @returns {{ leaked: boolean, matches: string[] }}
  */

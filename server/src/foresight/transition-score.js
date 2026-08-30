@@ -16,8 +16,8 @@
 import {
   SIGNALS,
   NEGATIVE_SIGNAL_KEYS,
-  HORIZON_BASE_RATE,
-  HORIZON_MONTHS,
+  DEFAULT_HORIZON_MONTHS,
+  baseRateForHorizon,
   isKnownSignal,
 } from "./signals.js";
 
@@ -63,14 +63,14 @@ export function bandForScore(score) {
  * Score a company's transition likelihood from its observed signals.
  *
  * @param signals array of { key, present, confidence, evidence_date, source_url, note }
- * @returns {{
- *   score: number, band: string, probability: number, lift: number,
- *   baseRate: number, horizonMonths: number,
- *   contributions: Array, usedSignals: number, ignoredSignals: Array,
- *   evidenceComplete: boolean, caveat: string
- * }}
+ * @param options.horizonMonths window the probability refers to. Callers running
+ *        a backtest must pass the same span they will evaluate over.
  */
-export function scoreTransition(signals, { requireEvidence = true } = {}) {
+export function scoreTransition(
+  signals,
+  { requireEvidence = true, horizonMonths = DEFAULT_HORIZON_MONTHS } = {}
+) {
+  const baseRate = baseRateForHorizon(horizonMonths);
   const list = Array.isArray(signals) ? signals : [];
   const contributions = [];
   const ignored = [];
@@ -118,8 +118,8 @@ export function scoreTransition(signals, { requireEvidence = true } = {}) {
   // Map score onto a probability anchored to the horizon base rate. A zero
   // score should land near the base rate, not near 50%.
   const relative = logistic(score, 4.0, 0.55) / logistic(0, 4.0, 0.55);
-  const probability = Math.min(0.6, HORIZON_BASE_RATE * relative);
-  const lift = probability / HORIZON_BASE_RATE;
+  const probability = Math.min(0.85, baseRate * relative);
+  const lift = probability / baseRate;
 
   const positives = contributions.filter((c) => c.direction === "positive").length;
 
@@ -128,14 +128,14 @@ export function scoreTransition(signals, { requireEvidence = true } = {}) {
     band,
     probability: Number(probability.toFixed(4)),
     lift: Number(lift.toFixed(2)),
-    baseRate: Number(HORIZON_BASE_RATE.toFixed(4)),
-    horizonMonths: HORIZON_MONTHS,
+    baseRate: Number(baseRate.toFixed(4)),
+    horizonMonths,
     contributions,
     usedSignals: contributions.length,
     ignoredSignals: ignored,
     evidenceComplete: ignored.every((i) => i.reason === "not present"),
     caveat:
-      `Base rate over ${HORIZON_MONTHS} months is ${(HORIZON_BASE_RATE * 100).toFixed(1)}%. ` +
+      `Base rate over ${horizonMonths} months is ${(baseRate * 100).toFixed(1)}%. ` +
       `A score of ${score.toFixed(1)} implies roughly ${(probability * 100).toFixed(1)}% ` +
       `(${lift.toFixed(1)}x base). Most companies in any band will not transact; ` +
       `use this to rank outreach order, not to predict individual outcomes.`,

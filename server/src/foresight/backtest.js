@@ -15,8 +15,8 @@
 import { extractSignalsAsOf } from "./extract-signals.js";
 import { resolveOutcome } from "./outcome-oracle.js";
 import { scoreTransition, rankByTransition } from "./transition-score.js";
-import { HORIZON_BASE_RATE } from "./signals.js";
-import { parseCutoff } from "./point-in-time.js";
+import { baseRateForHorizon, DEFAULT_HORIZON_MONTHS } from "./signals.js";
+import { parseCutoff, monthsBetween, addMonths } from "./point-in-time.js";
 
 /** Bounded-concurrency map so a large watchlist does not stampede the API. */
 async function pool(items, concurrency, worker) {
@@ -43,16 +43,30 @@ function precisionAtK(ranked, k) {
 /**
  * Run a point-in-time backtest.
  *
+ * The scoring horizon is *derived* from the evaluation window rather than
+ * configured separately, so the probability a company is scored against and the
+ * period it is judged over are the same span by construction.
+ *
  * @param candidates array of { name, domain }
  * @param cutoff     the historical vantage point (YYYY-MM-DD)
- * @param asOf       end of the evaluation window (defaults to today)
+ * @param horizonMonths length of the evaluation window; `asOf` is derived from it
+ * @param asOf       explicit window end, overriding `horizonMonths`
  */
 export async function runBacktest(
   candidates,
-  { cutoff, asOf = new Date().toISOString().slice(0, 10), concurrency = 3, onProgress = null } = {}
+  {
+    cutoff,
+    horizonMonths = DEFAULT_HORIZON_MONTHS,
+    asOf = null,
+    concurrency = 3,
+    onProgress = null,
+  } = {}
 ) {
   parseCutoff(cutoff);
-  parseCutoff(asOf);
+
+  // Whichever the caller supplies, both must agree afterwards.
+  const windowEnd = asOf ?? addMonths(cutoff, horizonMonths);
+  const window = monthsBetween(cutoff, windowEnd);
 
   const list = (Array.isArray(candidates) ? candidates : []).filter((c) => c?.domain);
   if (!list.length) {
@@ -62,7 +76,7 @@ export async function runBacktest(
   const started = Date.now();
   onProgress?.({
     step: `Rewinding to ${cutoff}…`,
-    detail: `${list.length} candidates`,
+    detail: `${list.length} candidates over a ${window}-month window`,
     at: Date.now(),
   });
 
@@ -71,21 +85,26 @@ export async function runBacktest(
     extractSignalsAsOf({ ...company, cutoff }, { onProgress })
   );
 
-  // Stage 2 — score from audited, pre-cutoff evidence only.
+  // Stage 2 — score from audited, pre-cutoff evidence only, over the same
+  // horizon the outcomes will be judged across.
   const scored = observations.map((obs) => ({
     name: obs.name,
     domain: obs.domain,
     snapshot: obs.snapshot,
-    score: scoreTransition(obs.signals),
+    score: scoreTransition(obs.signals, { horizonMonths: window }),
     audit: obs.audit,
     extractionError: obs.error,
   }));
 
-  onProgress?.({ step: "Resolving actual outcomes…", detail: `${list.length} companies`, at: Date.now() });
+  onProgress?.({
+    step: "Resolving actual outcomes…",
+    detail: `${list.length} companies`,
+    at: Date.now(),
+  });
 
   // Stage 3 — find out what actually happened.
   const outcomes = await pool(scored, concurrency, (row) =>
-    resolveOutcome({ name: row.name, domain: row.domain }, { cutoff, asOf }, { onProgress })
+    resolveOutcome({ name: row.name, domain: row.domain }, { cutoff, asOf: windowEnd }, { onProgress })
   );
 
   const rows = scored.map((row, i) => ({ ...row, outcome: outcomes[i] }));
@@ -131,17 +150,44 @@ export async function runBacktest(
     warnings.push(
       "No candidate transacted in the window, so precision cannot discriminate. Widen the window or pick a period with known activity."
     );
+  } else if (transacted.length > 0 && transacted.length < 3) {
+    // Sample size alone is not the constraint — the count of *positive events*
+    // is. With one or two transactions, precision@k can only take a handful of
+    // values and carries almost no information either way.
+    warnings.push(
+      `Only ${transacted.length} positive event(s) in the pool. Precision@k cannot be estimated meaningfully from this few outcomes regardless of how many candidates were screened; calibration needs a pool with many more known transactions.`
+    );
+  }
+  if (window > 36) {
+    warnings.push(
+      `The ${window}-month window is long enough that pre-cutoff signals decay; a company's situation in ${cutoff} says progressively less about a transaction years later.`
+    );
+  }
+
+  // Surface a possible sign error: if the transactors carry mostly negative
+  // signals, the priors may be inverted for this population rather than merely
+  // weak, which is a different and more actionable failure.
+  if (transacted.length) {
+    const negativeLeaning = transacted.filter(
+      (r) => r.score.negativeSignals > r.score.positiveSignals
+    ).length;
+    if (negativeLeaning === transacted.length) {
+      warnings.push(
+        "Every company that transacted scored net-negative, which points to inverted priors for this population rather than merely weak ones. Venture-backed companies exit because investors need liquidity, so a recent raise may raise transaction likelihood rather than lower it."
+      );
+    }
   }
 
   return {
     cutoff,
-    asOf,
+    asOf: windowEnd,
+    horizonMonths: window,
     candidates: ranked.length,
     evaluated: evaluable.length,
     unresolved: ranked.length - evaluable.length,
     transacted: transacted.length,
     observedRate: observedRate === null ? null : Number(observedRate.toFixed(4)),
-    priorBaseRate: Number(HORIZON_BASE_RATE.toFixed(4)),
+    priorBaseRate: Number(baseRateForHorizon(window).toFixed(4)),
     precisionAt3: pAt3,
     precisionAt5: pAt5,
     liftOverPool: lift,
@@ -156,7 +202,9 @@ export async function runBacktest(
 /** Compact, reviewable text rendering of a backtest. */
 export function formatBacktest(report) {
   const lines = [];
-  lines.push(`Backtest — vantage point ${report.cutoff}, outcomes through ${report.asOf}`);
+  lines.push(
+    `Backtest — vantage point ${report.cutoff}, outcomes through ${report.asOf} (${report.horizonMonths}-month horizon)`
+  );
   lines.push(
     `  candidates ${report.candidates} · outcomes resolved ${report.evaluated} · transacted ${report.transacted} · guards tripped ${report.contaminatedCount}`
   );
