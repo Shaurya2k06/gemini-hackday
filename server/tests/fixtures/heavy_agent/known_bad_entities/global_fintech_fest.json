@@ -1,0 +1,22 @@
+{
+  "id": "global_fintech_fest",
+  "description": "Conference entity — should be gated by entity plausibility, not domain resolution",
+  "record": {
+    "name": "Global Fintech Fest",
+    "url": "https://www.crunchbase.com/organization/global-fintech-fest",
+    "source": "crunchbase",
+    "description": "Annual fintech conference in Mumbai"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "Global Fintech Fest\nAnnual conference event in Mumbai.",
+    "serperOrganic": [],
+    "domainPageJinaText": {}
+  },
+  "expected": {
+    "finalDomain": null,
+    "skipDomainResolution": true,
+    "entityPlausibilityBelowPrimary": true,
+    "exclusionReason": "entity_plausibility"
+  }
+}

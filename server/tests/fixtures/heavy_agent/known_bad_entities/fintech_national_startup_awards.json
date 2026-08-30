@@ -1,0 +1,21 @@
+{
+  "id": "fintech_national_startup_awards",
+  "description": "Awards entity with year — should be gated by entity plausibility",
+  "record": {
+    "name": "FinTech-National Startup Awards 2020",
+    "url": "https://www.crunchbase.com/organization/fintech-national-startup-awards-2020",
+    "source": "crunchbase"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "FinTech-National Startup Awards 2020\nAward ceremony recognizing startups.",
+    "serperOrganic": [],
+    "domainPageJinaText": {}
+  },
+  "expected": {
+    "finalDomain": null,
+    "skipDomainResolution": true,
+    "entityPlausibilityBelowPrimary": true,
+    "exclusionReason": "entity_plausibility"
+  }
+}

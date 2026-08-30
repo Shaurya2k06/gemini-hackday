@@ -1,0 +1,21 @@
+{
+  "id": "mumbai_fintech_hub",
+  "description": "Hub entity — should be gated by entity plausibility",
+  "record": {
+    "name": "Mumbai FinTech Hub",
+    "url": "https://www.crunchbase.com/organization/mumbai-fintech-hub",
+    "source": "crunchbase"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "Mumbai FinTech Hub\nCoworking and innovation hub.",
+    "serperOrganic": [],
+    "domainPageJinaText": {}
+  },
+  "expected": {
+    "finalDomain": null,
+    "skipDomainResolution": true,
+    "entityPlausibilityBelowPrimary": true,
+    "exclusionReason": "entity_plausibility"
+  }
+}

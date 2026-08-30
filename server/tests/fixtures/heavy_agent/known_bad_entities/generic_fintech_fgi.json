@@ -1,0 +1,26 @@
+{
+  "id": "generic_fintech_fgi",
+  "description": "Generic sector name Fintech — plausibility gate; domain resolution skipped",
+  "record": {
+    "name": "Fintech",
+    "url": "https://www.crunchbase.com/organization/fintech",
+    "source": "crunchbase",
+    "domain": "fgi.co.jp"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "Fintech\nGeneric listing.",
+    "serperOrganic": [{ "link": "https://fgi.co.jp", "title": "FGI" }],
+    "domainPageJinaText": {
+      "fgi.co.jp": "FGI Corporation\nJapanese financial group homepage."
+    }
+  },
+  "expected": {
+    "finalDomain": null,
+    "skipDomainResolution": false,
+    "entityPlausibilityBelowPrimary": true,
+    "domain_relevance_status": "unverified_relevance",
+    "attempted_domain": "fgi.co.jp",
+    "exclusionReason": "entity_plausibility"
+  }
+}

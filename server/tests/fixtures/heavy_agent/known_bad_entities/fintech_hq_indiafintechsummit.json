@@ -1,0 +1,26 @@
+{
+  "id": "fintech_hq_indiafintechsummit",
+  "description": "FinTech HQ wrongly passed relevance on generic 'fintech' token at indiafintechsummit.in",
+  "record": {
+    "name": "FinTech HQ",
+    "url": "https://www.crunchbase.com/organization/fintech-hq",
+    "source": "crunchbase"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "FinTech HQ\nOrganization profile on Crunchbase.",
+    "serperOrganic": [
+      { "link": "https://www.indiafintechsummit.in", "title": "India FinTech Summit" }
+    ],
+    "domainPageJinaText": {
+      "indiafintechsummit.in": "India FinTech Summit\nLeading fintech conference and summit for the Indian financial technology industry."
+    }
+  },
+  "expected": {
+    "finalDomain": null,
+    "domain_relevance_status": "unverified_relevance",
+    "attempted_domain": "indiafintechsummit.in",
+    "entityPlausibilityBelowPrimary": false,
+    "exclusionReason": "domain_relevance"
+  }
+}

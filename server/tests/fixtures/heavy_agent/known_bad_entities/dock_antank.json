@@ -1,0 +1,29 @@
+{
+  "id": "dock_antank",
+  "description": "Dock wrongly passed relevance on incidental 'dock' word at antank.net without hostname corroboration",
+  "record": {
+    "name": "Dock",
+    "url": "https://www.crunchbase.com/organization/dock",
+    "source": "crunchbase",
+    "description": "Brazilian fintech infrastructure company"
+  },
+  "wikidataCompanies": [],
+  "mocks": {
+    "platformJinaText": "Dock\nCrunchbase profile for Dock payments fintech.\nNo website field available.",
+    "serperOrganic": [
+      { "link": "https://www.nintendo.com", "title": "Nintendo - Official Site" },
+      { "link": "https://www.antank.net", "title": "Antank Solutions" }
+    ],
+    "domainPageJinaText": {
+      "nintendo.com": "Nintendo - Official Site\nExplore Nintendo Switch, games, and accessories for the whole family.",
+      "antank.net": "Antank Solutions\nWe offer dock scheduling and warehouse management software for logistics teams."
+    }
+  },
+  "expected": {
+    "finalDomain": null,
+    "domain_relevance_status": "unverified_relevance",
+    "attempted_domain": "antank.net",
+    "entityPlausibilityBelowPrimary": false,
+    "exclusionReason": "domain_relevance"
+  }
+}
