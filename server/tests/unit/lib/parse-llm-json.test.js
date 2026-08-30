@@ -87,3 +87,50 @@ test("parseLlmJson preserves braces inside string values when salvaging", () => 
   assert.equal(parsed.companies.length, 1);
   assert.equal(parsed.companies[0].description, "Uses {curly} braces, [brackets]");
 });
+
+// --- mid-array defect recovery ---------------------------------------------
+// A defect partway through the list must cost only the broken record, not
+// every record that follows it.
+
+test("parseLlmJson recovers records after a missing comma", () => {
+  const raw = '{"companies":[{"name":"Alpha"} {"name":"Beta"}]}';
+  const { parsed } = parseLlmJson(raw);
+  assert.deepEqual(
+    parsed.companies.map((c) => c.name),
+    ["Alpha", "Beta"]
+  );
+});
+
+test("parseLlmJson keeps the good tail when an early record is malformed", () => {
+  const raw =
+    '{"companies":[{"name":"Alpha"} {"name":"Beta"},{"name":"Gamma"},{"name":"Delta"}]}';
+  const { parsed } = parseLlmJson(raw);
+  assert.deepEqual(
+    parsed.companies.map((c) => c.name),
+    ["Alpha", "Beta", "Gamma", "Delta"],
+    "a defect must not discard later records"
+  );
+});
+
+test("parseLlmJson drops only the record containing an invalid value", () => {
+  const raw =
+    '{"companies":[{"name":"Alpha","employees_count":~120},{"name":"Beta"},{"name":"Gamma"}]}';
+  const { parsed } = parseLlmJson(raw);
+  assert.deepEqual(
+    parsed.companies.map((c) => c.name),
+    ["Beta", "Gamma"]
+  );
+});
+
+test("parseLlmJson recovers past a stray token between records", () => {
+  const raw = '{"companies":[{"name":"Alpha"}, oops, {"name":"Beta"}]}';
+  const { parsed } = parseLlmJson(raw);
+  assert.equal(parsed.companies.length, 2);
+});
+
+test("parseLlmJson reuses the model's own array key when recovering", () => {
+  const raw = '{"results":[{"name":"Alpha"} {"name":"Beta"}]}';
+  const { parsed } = parseLlmJson(raw);
+  assert.ok(Array.isArray(parsed.results), "recovered under the original key");
+  assert.equal(parsed.results.length, 2);
+});
