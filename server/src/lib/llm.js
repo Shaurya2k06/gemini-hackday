@@ -144,13 +144,63 @@ export async function callStructuredLlm({
   }
 }
 
-export async function callGeminiSearch({
-  model,
-  messages,
-  purpose,
-  maxTokens = 16384,
-  schema = null,
-}) {
+export async function transcribeAudio({ base64Audio, mimeType, purpose = "voice_mandate_transcribe" }) {
+  const model = process.env.TRANSCRIBE_LLM_MODEL ?? "gemini-flash-latest";
+  const start = Date.now();
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-goog-api-key": getApiKey(),
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: "Transcribe this audio recording verbatim. Return only the spoken words as plain text, with no commentary, labels, or formatting.",
+                },
+                { inlineData: { mimeType, data: base64Audio } },
+              ],
+            },
+          ],
+          generationConfig: { maxOutputTokens: 2048 },
+        }),
+      }
+    );
+    const payload = await response.json();
+    if (!response.ok) {
+      const error = new Error(payload.error?.message ?? `Gemini request failed (${response.status})`);
+      error.status = response.status;
+      throw error;
+    }
+
+    const latencyMs = Date.now() - start;
+    const text = responseText(payload).trim();
+
+    logger.externalCall({ source: "gemini", query: purpose, status: 200, latencyMs, success: true });
+
+    return { text, model, latencyMs };
+  } catch (error) {
+    const latencyMs = Date.now() - start;
+    logger.externalCall({
+      source: "gemini",
+      query: purpose,
+      status: error.status ?? 500,
+      latencyMs,
+      success: false,
+      error,
+    });
+    throw error;
+  }
+}
+
+export async function callGeminiSearch({ model, messages, purpose, maxTokens = 16384 }) {
   const start = Date.now();
 
   // Grounded search spends a large share of the output budget on reasoning

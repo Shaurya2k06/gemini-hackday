@@ -88,55 +88,15 @@ function AppRoutes() {
 }
 
 function App() {
-  const [isDark, setIsDark] = useState(() => {
-    return localStorage.getItem('theme') === 'dark' || 
-      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
-
-  // Apply dark mode class
+  // Zoron is a committed light editorial brand — the app renders light everywhere
+  // so every page matches the landing page. Dark mode is intentionally disabled.
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }, []);
 
-  const toggleTheme = (e) => {
-    if (!document.startViewTransition) {
-      setIsDark(!isDark);
-      return;
-    }
-
-    const x = e.clientX ?? window.innerWidth / 2;
-    const y = e.clientY ?? window.innerHeight / 2;
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
-    );
-
-    const transition = document.startViewTransition(() => {
-      setIsDark(prev => !prev);
-    });
-
-    transition.ready.then(() => {
-      document.documentElement.animate(
-        {
-          clipPath: [
-            `circle(0px at ${x}px ${y}px)`,
-            `circle(${endRadius}px at ${x}px ${y}px)`,
-          ],
-        },
-        {
-          duration: 600,
-          easing: 'ease-in-out',
-          pseudoElement: isDark ? '::view-transition-old(root)' : '::view-transition-new(root)',
-        }
-      );
-    });
-  };
+  const isDark = false;
+  const toggleTheme = () => {};
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>

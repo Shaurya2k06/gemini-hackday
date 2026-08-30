@@ -1,10 +1,11 @@
-import { parseNaturalLanguageQuery } from "../light_agent/parser.js";
+import { parseNaturalLanguageQuery, detectMandateExclusions } from "../light_agent/parser.js";
 import { structuredToPills } from "../light_agent/pills.js";
 import {
   reconcileMandateStructured,
   mergeFieldAddition,
   mergeIncrementalMandate,
   looksLikeLocationFragment,
+  EXCLUDE_CUES,
 } from "../light_agent/mandate-merge.js";
 import { resolveQueryIntent } from "../light_agent/intent-routing.js";
 import { mapPipelineError } from "./errors.js";
@@ -75,7 +76,9 @@ export async function handleMandateParse({
     fragment &&
     prior
   ) {
-    const { structured: llmAddition } = await parseNaturalLanguageQuery(fragment);
+    const llmAddition = EXCLUDE_CUES.test(fragment)
+      ? await detectMandateExclusions({ prior: priorStructured, fragment })
+      : (await parseNaturalLanguageQuery(fragment)).structured;
     const merged = mergeIncrementalMandate(priorStructured, llmAddition, fragment);
     merged.raw_query = combined;
     const { intent, structured } = resolveQueryIntent(merged, combined);
