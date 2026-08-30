@@ -9,6 +9,7 @@ import { registerDiscoveryTools } from "./tools/discovery.js";
 import { registerCompanyTools } from "./tools/company.js";
 import { registerAnalysisTools } from "./tools/analysis.js";
 import { registerExportTools } from "./tools/export.js";
+import { registerForesightTools } from "./tools/foresight.js";
 
 export const SERVER_INFO = {
   name: "zoron",
@@ -43,6 +44,7 @@ export function createZoronServer({
   registerCompanyTools(server, store, pipeline);
   registerAnalysisTools(server, store, pipeline);
   registerExportTools(server, store, pipeline);
+  registerForesightTools(server, store, pipeline);
   registerResources(server, store);
   registerPrompts(server);
 
