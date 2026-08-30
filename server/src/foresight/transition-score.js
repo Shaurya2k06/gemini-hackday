@@ -20,6 +20,12 @@ import {
   baseRateForHorizon,
   isKnownSignal,
 } from "./signals.js";
+import {
+  weightFor,
+  inferPopulation,
+  isKnownPopulation,
+  DEFAULT_POPULATION,
+} from "./populations.js";
 
 /** Confidence in an observation, as reported by extraction. */
 const CONFIDENCE_FACTORS = { high: 1, medium: 0.65, low: 0.3 };
@@ -65,13 +71,18 @@ export function bandForScore(score) {
  * @param signals array of { key, present, confidence, evidence_date, source_url, note }
  * @param options.horizonMonths window the probability refers to. Callers running
  *        a backtest must pass the same span they will evaluate over.
+ * @param options.population which exit mechanic applies. Inferred from the
+ *        signals when omitted, since capital structure is observable.
  */
 export function scoreTransition(
   signals,
-  { requireEvidence = true, horizonMonths = DEFAULT_HORIZON_MONTHS } = {}
+  { requireEvidence = true, horizonMonths = DEFAULT_HORIZON_MONTHS, population = null } = {}
 ) {
   const baseRate = baseRateForHorizon(horizonMonths);
   const list = Array.isArray(signals) ? signals : [];
+  const resolvedPopulation = isKnownPopulation(population)
+    ? population
+    : inferPopulation(list);
   const contributions = [];
   const ignored = [];
   const seen = new Set();
@@ -95,15 +106,20 @@ export function scoreTransition(
     }
     seen.add(signal.key);
 
-    const def = SIGNALS[signal.key];
+    const weight = weightFor(signal.key, resolvedPopulation);
+    if (weight === 0) {
+      // Uninformative for this population — recorded, but must not move the score.
+      ignored.push({ key: signal.key, reason: `no weight for ${resolvedPopulation}` });
+      continue;
+    }
+
     const factor = confidenceFactor(signal.confidence);
-    const magnitude = def.weight * factor;
-    const delta = def.direction === "negative" ? -magnitude : magnitude;
+    const delta = weight * factor;
 
     contributions.push({
       key: signal.key,
-      direction: def.direction,
-      weight: def.weight,
+      direction: delta < 0 ? "negative" : "positive",
+      weight,
       confidence: String(signal.confidence ?? "medium").toLowerCase(),
       delta: Number(delta.toFixed(3)),
       evidence_date: signal.evidence_date ?? null,
@@ -126,6 +142,7 @@ export function scoreTransition(
   return {
     score: Number(score.toFixed(3)),
     band,
+    population: resolvedPopulation,
     probability: Number(probability.toFixed(4)),
     lift: Number(lift.toFixed(2)),
     baseRate: Number(baseRate.toFixed(4)),
@@ -135,6 +152,7 @@ export function scoreTransition(
     ignoredSignals: ignored,
     evidenceComplete: ignored.every((i) => i.reason === "not present"),
     caveat:
+      `Scored as ${resolvedPopulation}. ` +
       `Base rate over ${horizonMonths} months is ${(baseRate * 100).toFixed(1)}%. ` +
       `A score of ${score.toFixed(1)} implies roughly ${(probability * 100).toFixed(1)}% ` +
       `(${lift.toFixed(1)}x base). Most companies in any band will not transact; ` +
