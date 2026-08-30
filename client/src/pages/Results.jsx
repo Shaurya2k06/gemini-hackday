@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Download, FileSpreadsheet, Plus } from 'lucide-react';
+import { Monogram } from '../components/brand/Brand';
 import { GlanceTable } from '../components/discovery/GlanceTable';
 import { VoiceFeaturesPanel } from '../components/discovery/VoiceFeaturesPanel';
 import { PipelineProgress } from '../components/discovery/PipelineProgress';
@@ -405,7 +406,7 @@ function Results() {
   };
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-[#ebebeb] dark:bg-[#0a0a0a] text-black dark:text-white transition-colors duration-300">
+    <div className="h-screen w-screen flex overflow-hidden bg-cream text-ink font-sans antialiased">
       <ChatSidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen((v) => !v)}
@@ -413,27 +414,31 @@ function Results() {
         activeChatId={state.chatId ?? null}
       />
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-4xl h-12 bg-white/70 dark:bg-black/70 backdrop-blur-md border border-border/80 shadow-md rounded-full px-4 flex items-center justify-between z-50 transition-all duration-300">
+      <header className="shrink-0 h-16 bg-cream/95 backdrop-blur border-b border-hairline px-4 md:px-6 flex items-center justify-between gap-3 z-40">
         <div className="flex items-center gap-3 min-w-0">
           <Link
             to="/chat"
-            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground transition-colors flex items-center justify-center shrink-0"
+            className="p-1.5 text-secondary hover:text-ink transition-colors flex items-center justify-center shrink-0"
+            aria-label="New mandate"
           >
             <ArrowLeft size={16} />
           </Link>
+          <Monogram />
           <div className="min-w-0">
-            <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#595855] dark:text-[#808080] leading-none">
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#8f8b80] leading-none mb-0.5">
               At a glance
             </p>
-            <h1 className="font-davinci text-sm font-semibold truncate">Screening shortlist</h1>
+            <h1 className="font-sans text-[14px] font-semibold tracking-tight truncate leading-none">
+              Screening shortlist
+            </h1>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={() => exportBody('csv')}
             disabled={!companies.length}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] border border-[#dfdcd5] dark:border-[#333] disabled:opacity-40 cursor-pointer bg-white/80 dark:bg-[#111]/80 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="inline-flex items-center gap-1.5 h-[34px] px-3 font-mono text-[11px] uppercase tracking-[0.06em] border border-ink/20 text-ink disabled:opacity-40 cursor-pointer bg-cream hover:border-ink transition-colors"
           >
             <FileSpreadsheet size={12} />
             CSV
@@ -442,7 +447,7 @@ function Results() {
             type="button"
             onClick={() => exportBody('pdf')}
             disabled={!companies.length}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] border border-[#dfdcd5] dark:border-[#333] disabled:opacity-40 cursor-pointer bg-white/80 dark:bg-[#111]/80 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="inline-flex items-center gap-1.5 h-[34px] px-3 font-mono text-[11px] uppercase tracking-[0.06em] border border-ink/20 text-ink disabled:opacity-40 cursor-pointer bg-cream hover:border-ink transition-colors"
           >
             <Download size={12} />
             PDF
@@ -450,19 +455,22 @@ function Results() {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain pt-20" data-lenis-prevent>
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain" data-lenis-prevent>
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 space-y-6">
           {state.message ? (
-            <p className="text-sm text-[#595855] dark:text-[#808080]">{state.message}</p>
+            <p className="text-[14px] text-secondary leading-[1.55]">{state.message}</p>
           ) : null}
           {state.rawQuery ? (
-            <p className="text-xs font-mono text-[#595855] dark:text-[#666]">
-              Screening Criteria: {state.rawQuery}
-            </p>
+            <div className="border border-hairline bg-[#fbf7ec] px-4 py-3">
+              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#8f8b80] mb-1">
+                Screening criteria
+              </p>
+              <p className="text-[13px] font-mono text-ink leading-[1.5]">{state.rawQuery}</p>
+            </div>
           ) : null}
 
           {showUnderfillNote ? (
-            <p className="text-sm text-amber-700 dark:text-amber-400">
+            <p className="text-[13px] font-mono text-accent-red">
               Only {companies.length}{' '}
               {companies.length === 1 ? 'company' : 'companies'} matched these screening criteria
               {companies.length < INITIAL_SHORTLIST_TARGET
@@ -473,17 +481,17 @@ function Results() {
           ) : null}
 
           {canExpand ? (
-            <div className="rounded-xl border border-[#dfdcd5] dark:border-[#2a2a2a] bg-white dark:bg-[#111] px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
+            <div className="border border-hairline bg-[#fbf7ec] px-4 py-3 flex flex-wrap items-center gap-3 justify-between">
               <div>
-                <p className="text-sm font-medium text-black dark:text-white">
+                <p className="text-[14px] font-semibold text-ink">
                   {companies.length} of {SHORTLIST_MAX} companies
                 </p>
-                <p className="text-xs text-[#595855] dark:text-[#808080] mt-0.5">
+                <p className="text-[13px] text-secondary mt-0.5">
                   Request more matches using these screening criteria
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <label className="text-xs text-[#595855] dark:text-[#808080] flex items-center gap-2">
+                <label className="text-[13px] text-secondary flex items-center gap-2">
                   Add
                   <input
                     type="number"
@@ -497,7 +505,7 @@ function Results() {
                       }
                     }}
                     disabled={!canExpand}
-                    className="w-14 px-2 py-1 rounded-lg text-sm border border-[#dfdcd5] dark:border-[#333] bg-[#ebebeb] dark:bg-[#0a0a0a] text-center"
+                    className="w-14 px-2 py-1.5 text-[13px] border border-hairline bg-cream text-ink text-center outline-none focus:border-ink/40"
                   />
                   more
                 </label>
@@ -505,7 +513,7 @@ function Results() {
                   type="button"
                   onClick={handleExpand}
                   disabled={!canExpand}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-black text-white dark:bg-white dark:text-black disabled:opacity-40 cursor-pointer border-none"
+                  className="inline-flex items-center gap-1.5 h-[34px] px-4 font-mono text-[11px] uppercase tracking-[0.06em] bg-accent-red text-white disabled:opacity-40 cursor-pointer border-none hover:brightness-105 transition-all"
                 >
                   <Plus size={14} />
                   {expanding ? 'Searching…' : 'Find more'}
@@ -518,10 +526,10 @@ function Results() {
 
           {expandMessage ? (
             <p
-              className={`text-sm ${
+              className={`text-[13px] ${
                 expandMessage.includes('No more') || expandMessage.includes('not available')
-                  ? 'text-amber-700 dark:text-amber-400'
-                  : 'text-[#595855] dark:text-[#808080]'
+                  ? 'text-accent-red font-mono'
+                  : 'text-secondary'
               }`}
             >
               {expandMessage}
@@ -529,7 +537,7 @@ function Results() {
           ) : null}
 
           {customColumnError ? (
-            <p className="text-sm text-amber-700 dark:text-amber-400">{customColumnError}</p>
+            <p className="text-[13px] font-mono text-accent-red">{customColumnError}</p>
           ) : null}
 
           <GlanceTable

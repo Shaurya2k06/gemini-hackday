@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Download, Mail } from 'lucide-react';
+import { Monogram } from '../components/brand/Brand';
 import { PipelineProgress } from '../components/discovery/PipelineProgress';
 import { ChatSidebar } from '../components/chat/ChatSidebar';
 import { mapApiCardToCompany, formatStage, formatUsdDisplay, formatDate } from '../components/discovery/format';
@@ -12,10 +13,10 @@ import { loadDiscoveryState } from '../lib/discoveryStorage';
 function DossierSection({ title, children }) {
   return (
     <section className="space-y-2">
-      <h2 className="text-[10px] font-mono uppercase tracking-[0.15em] text-[#595855] dark:text-[#808080]">
+      <h2 className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#8f8b80]">
         {title}
       </h2>
-      <div className="text-sm text-black dark:text-white leading-relaxed">{children}</div>
+      <div className="text-[14px] text-ink leading-relaxed">{children}</div>
     </section>
   );
 }
@@ -140,35 +141,37 @@ function CompanyDive() {
   };
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-[#ebebeb] dark:bg-[#0a0a0a] text-black dark:text-white transition-colors duration-300">
+    <div className="h-screen w-screen flex overflow-hidden bg-cream text-ink font-sans antialiased">
       <ChatSidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen((v) => !v)}
         activeChatId={activeChatId}
       />
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-3xl h-12 bg-white/70 dark:bg-black/70 backdrop-blur-md border border-border/80 shadow-md rounded-full px-4 flex items-center justify-between z-50 transition-all duration-300">
+      <header className="shrink-0 h-16 bg-cream/95 backdrop-blur border-b border-hairline px-4 md:px-6 flex items-center justify-between gap-3 z-40">
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center shrink-0"
+            className="p-1.5 text-secondary hover:text-ink transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center shrink-0"
+            aria-label="Back"
           >
             <ArrowLeft size={16} />
           </button>
+          <Monogram />
           <div className="min-w-0">
-            <p className="text-[9px] font-mono uppercase tracking-[0.2em] text-[#595855] dark:text-[#808080] leading-none">
+            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#8f8b80] leading-none mb-0.5">
               Deep dive
             </p>
-            <h1 className="font-davinci text-sm font-semibold truncate">{co.name}</h1>
+            <h1 className="font-sans text-[14px] font-semibold tracking-tight truncate leading-none">{co.name}</h1>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             title="Coming soon"
             onClick={() => {}}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] border border-[#dfdcd5] dark:border-[#333] bg-transparent text-[#595855] dark:text-[#a0a0a0] hover:border-black/30 dark:hover:border-white/30 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 h-[34px] px-3 font-mono text-[11px] uppercase tracking-[0.06em] border border-ink/20 bg-cream text-secondary hover:border-ink hover:text-ink transition-colors cursor-pointer"
           >
             <Mail size={12} />
             Email
@@ -177,7 +180,7 @@ function CompanyDive() {
             type="button"
             disabled={loading || exportingPdf}
             onClick={exportPdf}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] border border-[#dfdcd5] dark:border-[#333] bg-transparent text-[#595855] dark:text-[#a0a0a0] hover:border-black/30 dark:hover:border-white/30 hover:text-black dark:hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 h-[34px] px-3 font-mono text-[11px] uppercase tracking-[0.06em] border border-ink/20 bg-cream text-ink hover:border-ink transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Download size={12} />
             {exportingPdf ? 'PDF…' : 'PDF'}
@@ -185,39 +188,39 @@ function CompanyDive() {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain pt-20" data-lenis-prevent>
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain" data-lenis-prevent>
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 space-y-8">
         {loading ? <PipelineProgress events={feedEvents} active /> : null}
-        {error ? <p className="text-sm text-amber-700 dark:text-amber-400">{error}</p> : null}
+        {error ? <p className="text-[13px] font-mono text-accent-red">{error}</p> : null}
 
         {!loading && (
           <>
-            <header className="space-y-2 pb-6 border-b border-[#dfdcd5] dark:border-[#222]">
-              <h2 className="font-davinci text-2xl font-semibold">{co.name}</h2>
+            <header className="space-y-2 pb-6 border-b border-hairline">
+              <h2 className="font-sans text-[26px] font-semibold tracking-[-0.02em]">{co.name}</h2>
               {co.websiteUrl ? (
                 <a
                   href={co.websiteUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sm text-[#595855] dark:text-[#808080] hover:underline inline-flex items-center gap-1"
+                  className="text-[14px] text-secondary hover:text-accent-red inline-flex items-center gap-1"
                 >
                   {co.domain}
                   <ExternalLink size={12} />
                 </a>
               ) : (
-                <p className="text-sm text-[#595855]">{co.domain}</p>
+                <p className="text-[14px] text-secondary">{co.domain}</p>
               )}
               {co.geography ? (
-                <p className="text-xs text-[#595855] dark:text-[#808080]">HQ: {co.geography}</p>
+                <p className="text-[13px] text-secondary">HQ: {co.geography}</p>
               ) : null}
               {co.fitSummary ? (
-                <p className="text-xs px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 inline-block">
+                <p className="text-[11px] font-mono uppercase tracking-[0.04em] px-2 py-1 bg-accent-green text-cream inline-block mt-1">
                   {co.fitSummary}
                 </p>
               ) : null}
             </header>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {[
                 ['Stage', formatStage(co.stage)],
                 ['Total raised', formatUsdDisplay(co.raised)],
@@ -228,10 +231,10 @@ function CompanyDive() {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-lg border border-[#dfdcd5] dark:border-[#222] p-3 bg-white dark:bg-[#111]"
+                  className="border border-hairline p-3 bg-[#fbf7ec]"
                 >
-                  <p className="text-[9px] font-mono uppercase text-[#595855] dark:text-[#666]">{label}</p>
-                  <p className="text-sm font-medium mt-1">{value}</p>
+                  <p className="text-[9px] font-mono uppercase tracking-[0.08em] text-[#8f8b80]">{label}</p>
+                  <p className="text-[14px] font-semibold mt-1">{value}</p>
                 </div>
               ))}
             </div>
@@ -314,8 +317,11 @@ function CompanyDive() {
               </DossierSection>
             ) : null}
 
-            <div className="pt-4">
-              <Link to="/chat" className="text-xs text-[#595855] hover:underline">
+            <div className="pt-4 border-t border-hairline">
+              <Link
+                to="/chat"
+                className="font-mono text-[11px] uppercase tracking-[0.06em] text-secondary hover:text-accent-red transition-colors"
+              >
                 ← New mandate
               </Link>
             </div>
