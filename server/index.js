@@ -10,6 +10,7 @@ import { connectDb } from "./src/auth/db.js";
 import { seedDemoUsers } from "./src/auth/seed-users.js";
 import { registerAuthRoutes, registerChatRoutes } from "./src/auth/routes.js";
 import { attachUser } from "./src/auth/middleware.js";
+import { registerMcpHttpRoutes } from "../mcp/src/http.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -52,6 +53,7 @@ export async function bootApp() {
   registerAuthRoutes(app);
   registerChatRoutes(app);
   registerApiRoutes(app);
+  registerMcpHttpRoutes(app);
 
   await seedDemoUsers();
   return app;

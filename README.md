@@ -61,6 +61,17 @@ cd client && VITE_API_URL=https://your-api-domain.com npm run build
 
 `mcp/` exposes the discovery pipeline as MCP tools so an MCP host (Claude Desktop, Kiro, Cursor) can drive Zoron directly. It imports `server/src/` in-process — no Express, no database, only the LLM API key.
 
+The API service also exposes the same tools over public Streamable HTTP at `POST /mcp`. This is intentionally unauthenticated for the demo deployment; anyone who can reach the endpoint can invoke Gemini-backed tools. Sessions, including their in-memory mandates, shortlists, and dossiers, are isolated per MCP client and expire after 30 minutes idle time. Set `MCP_MAX_SESSIONS` (default `100`) or `MCP_SESSION_IDLE_TIMEOUT_MS` to tune the bounded in-memory session pool.
+
+```bash
+openclaw mcp add zoron \
+  --url https://your-api-domain.com/mcp \
+  --transport streamable-http \
+  --timeout 300 \
+  --connect-timeout 15
+openclaw mcp doctor zoron --probe
+```
+
 ```bash
 cd mcp && npm install
 ```
