@@ -10,6 +10,7 @@ import {
   extractCustomColumn,
 } from "./src/chatbot/index.js";
 import { handleThesisPdfParse } from "./src/chatbot/thesis-parse.js";
+import { handleVoiceMandateParse } from "./src/chatbot/voice-parse.js";
 import { normalizeExportCompanies } from "./src/chatbot/export-normalize.js";
 import multer from "multer";
 
@@ -24,6 +25,19 @@ const thesisUpload = multer({
       return;
     }
     cb(new Error("Only PDF files are supported"));
+  },
+});
+
+const voiceUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const mime = String(file.mimetype ?? "").toLowerCase();
+    if (mime.startsWith("audio/") || mime === "video/webm") {
+      cb(null, true);
+      return;
+    }
+    cb(new Error("Only audio recordings are supported"));
   },
 });
 
@@ -84,6 +98,37 @@ export function registerApiRoutes(app) {
         res.json(result);
       } catch (error) {
         res.status(400).json({ error: error.message ?? "Thesis parse failed" });
+      }
+    });
+  });
+
+  app.post("/api/mandate/parse-audio", (req, res) => {
+    voiceUpload.single("audio")(req, res, async (err) => {
+      if (err) {
+        res.status(400).json({ error: err.message ?? "Upload failed" });
+        return;
+      }
+      try {
+        if (!req.file?.buffer) {
+          res.status(400).json({ error: "Audio recording is required" });
+          return;
+        }
+        let priorStructured = null;
+        if (req.body?.priorStructured) {
+          try {
+            priorStructured = JSON.parse(req.body.priorStructured);
+          } catch {
+            priorStructured = null;
+          }
+        }
+        const result = await handleVoiceMandateParse(
+          req.file.buffer,
+          { originalname: req.file.originalname, mimetype: req.file.mimetype },
+          { priorStructured, accumulatedText: req.body?.accumulatedText ?? "" }
+        );
+        res.json(result);
+      } catch (error) {
+        res.status(400).json({ error: error.message ?? "Voice parse failed" });
       }
     });
   });
