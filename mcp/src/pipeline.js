@@ -28,3 +28,13 @@ export {
 } from "../../server/src/chatbot/index.js";
 
 export { handleThesisPdfParse } from "../../server/src/chatbot/thesis-parse.js";
+
+// --- Foresight: ownership-transition prediction ----------------------------
+export { extractSignalsAsOf } from "../../server/src/foresight/extract-signals.js";
+export { resolveOutcome } from "../../server/src/foresight/outcome-oracle.js";
+export { runBacktest, formatBacktest } from "../../server/src/foresight/backtest.js";
+export {
+  scoreTransition,
+  rankByTransition,
+} from "../../server/src/foresight/transition-score.js";
+export { SIGNALS, SIGNAL_KEYS } from "../../server/src/foresight/signals.js";

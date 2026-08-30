@@ -7,6 +7,7 @@ import { makeCard, makeStructuredMandate } from "./helpers/fixtures.js";
 
 /** Every tool the server is expected to expose. */
 const EXPECTED_TOOLS = [
+  "zoron_backtest_thesis",
   "zoron_custom_column",
   "zoron_deep_dive",
   "zoron_discover",
@@ -17,6 +18,7 @@ const EXPECTED_TOOLS = [
   "zoron_lookup_company",
   "zoron_parse_mandate",
   "zoron_parse_thesis_pdf",
+  "zoron_transition_score",
 ];
 
 test("the full tool surface is registered, with no extras", async () => {
