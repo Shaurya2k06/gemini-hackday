@@ -5,7 +5,7 @@ import { Check, Loader2, Circle } from 'lucide-react';
 function StepIcon({ status }) {
   if (status === 'done') {
     return (
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-black text-white dark:bg-white dark:text-black">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ink text-cream">
         <Check size={11} strokeWidth={2.5} />
       </span>
     );
@@ -13,13 +13,13 @@ function StepIcon({ status }) {
   if (status === 'active') {
     return (
       <span className="flex h-5 w-5 shrink-0 items-center justify-center">
-        <Loader2 size={16} className="animate-spin text-black dark:text-white" />
+        <Loader2 size={16} className="animate-spin text-accent-red" />
       </span>
     );
   }
   return (
     <span className="flex h-5 w-5 shrink-0 items-center justify-center">
-      <Circle size={8} className="text-[#c4c3b6] dark:text-[#333]" fill="currentColor" />
+      <Circle size={8} className="text-ink/20" fill="currentColor" />
     </span>
   );
 }
@@ -84,11 +84,11 @@ export function PipelineProgress({ events = [], active = false }) {
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-[#dfdcd5] dark:border-[#2a2a2a] bg-white dark:bg-[#111] overflow-hidden"
+      className="border border-hairline bg-[#fbf7ec] overflow-hidden"
     >
-      <div className="px-4 py-3 border-b border-[#dfdcd5] dark:border-[#2a2a2a] flex items-center justify-between gap-3">
-        <span className="text-xs font-medium text-black dark:text-white">Sourcing workflow</span>
-        <span className="text-[10px] text-[#595855] dark:text-[#808080] tabular-nums shrink-0">
+      <div className="px-4 py-3 border-b border-hairline flex items-center justify-between gap-3">
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-secondary">Sourcing workflow</span>
+        <span className="font-mono text-[10px] text-[#8f8b80] tabular-nums shrink-0">
           {active ? `In progress · ${formatElapsed(elapsedMs)}` : `Complete · ${formatElapsed(elapsedMs)}`}
         </span>
       </div>
@@ -103,26 +103,26 @@ export function PipelineProgress({ events = [], active = false }) {
           return (
             <li
               key={`${evt.at ?? idx}-${evt.step}`}
-              className="flex gap-3 py-2.5 border-b border-[#dfdcd5]/60 dark:border-[#2a2a2a] last:border-0"
+              className="flex gap-3 py-2.5 border-b border-hairline last:border-0"
             >
               <StepIcon status={status} />
               <div className="min-w-0 flex-1">
                 <p
-                  className={`text-sm leading-snug ${
+                  className={`text-[14px] leading-snug ${
                     status === 'active'
-                      ? 'text-black dark:text-white font-medium'
-                      : 'text-[#595855] dark:text-[#a0a0a0]'
+                      ? 'text-ink font-medium'
+                      : 'text-secondary'
                   }`}
                 >
                   {evt.step}
                 </p>
                 {evt.detail ? (
-                  <p className="text-xs text-[#595855] dark:text-[#808080] mt-0.5 truncate">
+                  <p className="text-[12px] text-secondary mt-0.5 truncate">
                     {evt.detail}
                   </p>
                 ) : null}
               </div>
-              <span className="text-[10px] text-[#595855] dark:text-[#666] shrink-0 tabular-nums pt-0.5">
+              <span className="font-mono text-[10px] text-[#8f8b80] shrink-0 tabular-nums pt-0.5">
                 {status === 'active'
                   ? formatElapsed(elapsedMs)
                   : stepElapsed != null
