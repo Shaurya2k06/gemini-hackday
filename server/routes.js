@@ -113,10 +113,19 @@ export function registerApiRoutes(app) {
           res.status(400).json({ error: "Audio recording is required" });
           return;
         }
-        const result = await handleVoiceMandateParse(req.file.buffer, {
-          originalname: req.file.originalname,
-          mimetype: req.file.mimetype,
-        });
+        let priorStructured = null;
+        if (req.body?.priorStructured) {
+          try {
+            priorStructured = JSON.parse(req.body.priorStructured);
+          } catch {
+            priorStructured = null;
+          }
+        }
+        const result = await handleVoiceMandateParse(
+          req.file.buffer,
+          { originalname: req.file.originalname, mimetype: req.file.mimetype },
+          { priorStructured, accumulatedText: req.body?.accumulatedText ?? "" }
+        );
         res.json(result);
       } catch (error) {
         res.status(400).json({ error: error.message ?? "Voice parse failed" });

@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AudioLines, Loader2, Mic, Square } from 'lucide-react';
 import { apiUrl } from '../../lib/api';
 import { friendlyChatError } from '../../lib/chatErrors';
+import { pickAudioMimeType } from '../../lib/audioRecording';
 
 const badgeClass =
   'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wide bg-black/5 dark:bg-white/10 text-[#595855] dark:text-[#a0a0a0] shrink-0';
@@ -10,14 +10,7 @@ const badgeClass =
 const cardClass =
   'rounded-xl border border-[#dfdcd5] dark:border-[#2a2a2a] bg-white dark:bg-[#111] px-4 py-4 flex flex-col gap-3';
 
-function pickMimeType() {
-  if (typeof MediaRecorder === 'undefined') return '';
-  const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'];
-  return candidates.find((type) => MediaRecorder.isTypeSupported?.(type)) ?? '';
-}
-
-export function VoiceFeaturesPanel() {
-  const navigate = useNavigate();
+export function VoiceFeaturesPanel({ structured = null, rawQuery = '', onRefined }) {
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [error, setError] = useState(null);
@@ -46,6 +39,8 @@ export function VoiceFeaturesPanel() {
       const form = new FormData();
       const ext = mimeType.includes('mp4') ? 'm4a' : 'webm';
       form.append('audio', blob, `mandate.${ext}`);
+      if (structured) form.append('priorStructured', JSON.stringify(structured));
+      if (rawQuery) form.append('accumulatedText', rawQuery);
       const res = await fetch(apiUrl('/mandate/parse-audio'), {
         method: 'POST',
         body: form,
@@ -53,7 +48,12 @@ export function VoiceFeaturesPanel() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Could not transcribe audio');
-      navigate('/chat', { state: { voiceText: data.transcript } });
+      onRefined?.({
+        structured: data.structured,
+        rawQuery: data.accumulatedText,
+        pills: data.pills ?? [],
+        transcript: data.transcript,
+      });
     } catch (err) {
       setError(friendlyChatError(err.message));
     } finally {
@@ -70,7 +70,7 @@ export function VoiceFeaturesPanel() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const mimeType = pickMimeType();
+      const mimeType = pickAudioMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {
@@ -98,14 +98,14 @@ export function VoiceFeaturesPanel() {
           <div className="flex items-center gap-2 min-w-0">
             <Mic size={16} className="text-[#595855] dark:text-[#a0a0a0] shrink-0" />
             <p className="text-sm font-medium text-black dark:text-white truncate">
-              Voice mandate input
+              Refine by voice
             </p>
           </div>
           <span className={badgeClass}>Gemini 3.5 Transcribe</span>
         </div>
         <p className="text-xs text-[#595855] dark:text-[#808080] leading-relaxed">
-          Speak an investment thesis instead of typing it — Zoron transcribes it and converts it
-          into structured research criteria.
+          Speak a change instead of typing it — Zoron transcribes it and merges it into this
+          search's screening criteria.
         </p>
         {error ? <p className="text-xs text-amber-700 dark:text-amber-400">{error}</p> : null}
         <button
@@ -129,7 +129,7 @@ export function VoiceFeaturesPanel() {
           ) : (
             <>
               <Mic size={14} />
-              Speak your thesis
+              Speak a refinement
             </>
           )}
         </button>
