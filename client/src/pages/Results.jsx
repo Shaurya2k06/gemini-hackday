@@ -2,7 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Download, FileSpreadsheet, Plus } from 'lucide-react';
 import { GlanceTable } from '../components/discovery/GlanceTable';
+import { VoiceFeaturesPanel } from '../components/discovery/VoiceFeaturesPanel';
 import { PipelineProgress } from '../components/discovery/PipelineProgress';
+import { CriterionPills } from '../components/mandate/CriterionPills';
 import { ChatSidebar } from '../components/chat/ChatSidebar';
 import { mapApiCardToCompany } from '../components/discovery/format';
 import { loadDiscoveryState, saveDiscoveryState } from '../lib/discoveryStorage';
@@ -47,6 +49,12 @@ function Results() {
   const [customColumnError, setCustomColumnError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
+  const [voiceReview, setVoiceReview] = useState(null);
+  const [voiceApplying, setVoiceApplying] = useState(false);
+  const [voiceFeedEvents, setVoiceFeedEvents] = useState([]);
+  const [voiceError, setVoiceError] = useState(null);
+  const [voiceAddingField, setVoiceAddingField] = useState(null);
+  const [voiceFieldInput, setVoiceFieldInput] = useState('');
 
   // Re-hydrate when opening another saved chat while already on /results
   // (React Router does not remount this page for same-route navigations).
@@ -59,6 +67,12 @@ function Results() {
     setExpanding(false);
     setFeedEvents([]);
     setAdditionalCount(5);
+    setVoiceReview(null);
+    setVoiceApplying(false);
+    setVoiceFeedEvents([]);
+    setVoiceError(null);
+    setVoiceAddingField(null);
+    setVoiceFieldInput('');
   }, [location.key]);
 
   const companies = useMemo(
@@ -234,6 +248,162 @@ function Results() {
     }
   };
 
+  const handleVoiceRefined = (result) => {
+    setVoiceError(null);
+    setVoiceAddingField(null);
+    setVoiceFieldInput('');
+    setVoiceReview(result);
+  };
+
+  const handleDiscardVoiceRefinement = () => {
+    setVoiceReview(null);
+    setVoiceError(null);
+    setVoiceAddingField(null);
+    setVoiceFieldInput('');
+  };
+
+  const handleVoiceRemovePill = (pill) => {
+    if (!voiceReview?.structured) return;
+
+    const nextStructured = { ...voiceReview.structured };
+    const valueKey = String(pill.value ?? pill.label).toLowerCase();
+
+    if (Array.isArray(nextStructured[pill.field])) {
+      nextStructured[pill.field] = nextStructured[pill.field].filter(
+        (v) => String(v).toLowerCase() !== valueKey
+      );
+    } else if (pill.field === 'revenue') {
+      nextStructured.revenue_min = null;
+      nextStructured.revenue_max = null;
+    } else if (pill.field === 'ebitda') {
+      nextStructured.ebitda_min = null;
+      nextStructured.ebitda_max = null;
+    } else if (pill.field === 'employees') {
+      nextStructured.employees_min = null;
+      nextStructured.employees_max = null;
+    } else if (pill.field === 'founded_after' || pill.field === 'founded_before') {
+      nextStructured[pill.field] = null;
+    }
+
+    setVoiceReview({
+      ...voiceReview,
+      structured: nextStructured,
+      pills: voiceReview.pills.filter((p) => p.id !== pill.id),
+    });
+  };
+
+  const handleVoiceRangeChange = (kind, { min, max }) => {
+    if (!voiceReview?.structured) return;
+
+    const nextStructured = { ...voiceReview.structured };
+    if (kind === 'revenue') {
+      nextStructured.revenue_min = min;
+      nextStructured.revenue_max = max;
+    } else if (kind === 'ebitda') {
+      nextStructured.ebitda_min = min;
+      nextStructured.ebitda_max = max;
+    } else if (kind === 'employees') {
+      nextStructured.employees_min = min;
+      nextStructured.employees_max = max;
+    }
+
+    setVoiceReview({
+      ...voiceReview,
+      structured: nextStructured,
+      pills: voiceReview.pills.filter(
+        (p) => p.field !== 'revenue' && p.field !== 'ebitda' && p.field !== 'employees'
+      ),
+    });
+  };
+
+  const handleVoiceStartAdd = (field) => {
+    setVoiceAddingField(field);
+    setVoiceFieldInput('');
+  };
+
+  const handleVoiceCancelAdd = () => {
+    setVoiceAddingField(null);
+    setVoiceFieldInput('');
+  };
+
+  const handleVoiceCommitFieldAdd = async () => {
+    const value = voiceFieldInput.trim();
+    if (!value || !voiceAddingField || !voiceReview) return;
+
+    try {
+      const res = await apiFetch('/mandate/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: value,
+          accumulatedText: voiceReview.rawQuery,
+          priorStructured: voiceReview.structured,
+          fieldHint: voiceAddingField,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not add criterion');
+      setVoiceReview({
+        structured: data.structured,
+        rawQuery: data.accumulatedText,
+        pills: data.pills ?? [],
+        transcript: voiceReview.transcript,
+      });
+      setVoiceError(null);
+    } catch (err) {
+      setVoiceError(err.message ?? 'Could not add criterion');
+    } finally {
+      setVoiceFieldInput('');
+      setVoiceAddingField(null);
+    }
+  };
+
+  const handleApplyVoiceRefinement = async () => {
+    if (!voiceReview || voiceApplying) return;
+
+    setVoiceApplying(true);
+    setVoiceError(null);
+    setVoiceFeedEvents([{ step: 'Updating search…', detail: null, at: Date.now() }]);
+
+    try {
+      const res = await apiFetch('/discover/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          structured: voiceReview.structured,
+          rawQuery: voiceReview.rawQuery,
+          constraintMode: state.constraintMode ?? 'heavy',
+        }),
+      });
+
+      const result = await consumeSseStream(res, {
+        onProgress: (evt) => setVoiceFeedEvents((prev) => [...prev, evt].slice(-30)),
+      });
+
+      const newCompanies = (result.cards ?? []).map(mapApiCardToCompany);
+      const next = {
+        ...state,
+        companies: newCompanies,
+        cards: result.cards ?? [],
+        structured: result.structured ?? voiceReview.structured,
+        rawQuery: voiceReview.rawQuery,
+        message: result.message,
+        customColumns: [],
+      };
+
+      saveDiscoveryState(next);
+      setState(next);
+      setCustomColumns([]);
+      await syncChat(next);
+      setVoiceReview(null);
+    } catch (err) {
+      setVoiceError(err.message ?? 'Could not update search.');
+    } finally {
+      setVoiceApplying(false);
+      setVoiceFeedEvents([]);
+    }
+  };
+
   return (
     <div className="h-screen w-screen flex overflow-hidden bg-[#ebebeb] dark:bg-[#0a0a0a] text-black dark:text-white transition-colors duration-300">
       <ChatSidebar
@@ -379,6 +549,66 @@ function Results() {
               })
             }
           />
+
+          {companies.length > 0 ? (
+            <VoiceFeaturesPanel
+              structured={state.structured}
+              rawQuery={state.rawQuery}
+              onRefined={handleVoiceRefined}
+            />
+          ) : null}
+
+          {voiceReview ? (
+            <div className="rounded-xl border border-[#dfdcd5] dark:border-[#2a2a2a] bg-white dark:bg-[#111] px-4 py-4 space-y-3">
+              <div>
+                <p className="text-sm font-medium text-black dark:text-white">
+                  Updated criteria from your recording
+                </p>
+                <p className="text-xs text-[#595855] dark:text-[#808080] mt-0.5 italic">
+                  "{voiceReview.transcript}"
+                </p>
+              </div>
+
+              <CriterionPills
+                pills={voiceReview.pills}
+                structured={voiceReview.structured}
+                onRemove={handleVoiceRemovePill}
+                onRangeChange={handleVoiceRangeChange}
+                addingField={voiceAddingField}
+                fieldInput={voiceFieldInput}
+                onStartAdd={handleVoiceStartAdd}
+                onFieldInputChange={setVoiceFieldInput}
+                onCommitFieldAdd={handleVoiceCommitFieldAdd}
+                onCancelAdd={handleVoiceCancelAdd}
+                disabled={voiceApplying}
+              />
+
+              {voiceError ? (
+                <p className="text-sm text-amber-700 dark:text-amber-400">{voiceError}</p>
+              ) : null}
+
+              {voiceApplying ? <PipelineProgress events={voiceFeedEvents} active /> : null}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleApplyVoiceRefinement}
+                  disabled={voiceApplying}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-black text-white dark:bg-white dark:text-black disabled:opacity-40 cursor-pointer border-none"
+                >
+                  {voiceApplying ? 'Updating…' : 'Update search'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDiscardVoiceRefinement}
+                  disabled={voiceApplying}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-[#dfdcd5] dark:border-[#333] text-[#595855] dark:text-[#808080] disabled:opacity-40 cursor-pointer bg-transparent"
+                >
+                  Discard
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       </main>
       </div>
