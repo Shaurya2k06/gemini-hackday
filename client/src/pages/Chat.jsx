@@ -1,5 +1,5 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useContext, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { ThemeContext } from '../App';
@@ -38,7 +38,6 @@ function AssistantBubble({ children }) {
 
 function Chat() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isDark, toggleTheme } = useContext(ThemeContext);
   const composerRef = useRef(null);
 
@@ -58,14 +57,6 @@ function Chat() {
   const setMode = (mode) => {
     setConstraintMode(saveConstraintMode(mode));
   };
-
-  useEffect(() => {
-    const voiceText = location.state?.voiceText;
-    if (!voiceText) return;
-    setComposerInput('');
-    composerRef.current?.commitText?.(voiceText);
-    navigate('.', { replace: true, state: null });
-  }, [location.state]);
 
   const appendProgress = (evt) => {
     setFeedEvents((prev) => {
