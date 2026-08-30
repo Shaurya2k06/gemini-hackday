@@ -27,7 +27,12 @@ async function generateContent({ model, messages, maxTokens, schema, search = fa
     contents,
     generationConfig: {
       maxOutputTokens: maxTokens,
-      ...(schema ? { responseMimeType: "application/json", responseSchema: schema } : {}),
+      // `responseSchema` expects Gemini's protobuf Schema format. Our callers
+      // provide standard JSON Schema (including nullable type arrays and
+      // additionalProperties), which must use `responseJsonSchema` instead.
+      ...(schema
+        ? { responseMimeType: "application/json", responseJsonSchema: schema }
+        : {}),
     },
     ...(search ? { tools: [{ googleSearch: {} }] } : {}),
   };
