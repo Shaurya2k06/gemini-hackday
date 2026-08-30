@@ -1,7 +1,7 @@
 /**
  * Ownership-transition signal taxonomy.
  *
- * Zoron's screener answers "who matches my filters?". Foresight answers a
+ * Meredian's screener answers "who matches my filters?". Foresight answers a
  * different question: "who is likely to become available, and when?".
  *
  * Each signal is a weak, publicly observable indicator that a privately held

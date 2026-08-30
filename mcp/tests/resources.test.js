@@ -16,10 +16,10 @@ test("resource templates are advertised", async () => {
   try {
     const { resourceTemplates } = await client.listResourceTemplates();
     assert.deepEqual(resourceTemplates.map((t) => t.uriTemplate).sort(), [
-      "zoron://dossier/{domain}",
-      "zoron://mandate/{id}",
-      "zoron://shortlist/{id}",
-      "zoron://shortlist/{id}/company/{domain}",
+      "meredian://dossier/{domain}",
+      "meredian://mandate/{id}",
+      "meredian://shortlist/{id}",
+      "meredian://shortlist/{id}/company/{domain}",
     ]);
   } finally {
     await close();
@@ -31,7 +31,7 @@ test("reading a seeded shortlist returns the full payload as JSON", async () => 
     shortlist: store.putShortlist(makeShortlistInput(3)),
   }));
   try {
-    const result = await client.readResource({ uri: `zoron://shortlist/${ids.shortlist}` });
+    const result = await client.readResource({ uri: `meredian://shortlist/${ids.shortlist}` });
 
     assert.equal(result.contents.length, 1);
     assert.equal(result.contents[0].mimeType, "application/json");
@@ -54,7 +54,7 @@ test("reading a seeded mandate returns structured criteria", async () => {
     }),
   }));
   try {
-    const result = await client.readResource({ uri: `zoron://mandate/${ids.mandate}` });
+    const result = await client.readResource({ uri: `meredian://mandate/${ids.mandate}` });
     const payload = JSON.parse(result.contents[0].text);
     assert.equal(payload.intent, "mandate_search");
     assert.deepEqual(payload.structured.geography, ["Europe"]);
@@ -70,7 +70,7 @@ test("a single company can be read out of a shortlist by domain", async () => {
   }));
   try {
     const result = await client.readResource({
-      uri: `zoron://shortlist/${ids.shortlist}/company/co2.example`,
+      uri: `meredian://shortlist/${ids.shortlist}/company/co2.example`,
     });
     assert.equal(JSON.parse(result.contents[0].text).fields.name, "Company 2");
   } finally {
@@ -84,7 +84,7 @@ test("dossier resource is readable by normalized domain", async () => {
     return {};
   });
   try {
-    const result = await client.readResource({ uri: "zoron://dossier/acme.example" });
+    const result = await client.readResource({ uri: "meredian://dossier/acme.example" });
     const payload = JSON.parse(result.contents[0].text);
     assert.equal(payload.domain, "acme.example");
     assert.equal(payload.enrichmentSuccess, true);
@@ -97,15 +97,15 @@ test("unknown ids produce a clean protocol error, not a crash", async () => {
   const { client, close } = await connectTestClient();
   try {
     await assert.rejects(
-      () => client.readResource({ uri: "zoron://shortlist/does-not-exist" }),
+      () => client.readResource({ uri: "meredian://shortlist/does-not-exist" }),
       /No shortlist found with id "does-not-exist"/
     );
     await assert.rejects(
-      () => client.readResource({ uri: "zoron://mandate/nope" }),
+      () => client.readResource({ uri: "meredian://mandate/nope" }),
       /No mandate found with id "nope"/
     );
     await assert.rejects(
-      () => client.readResource({ uri: "zoron://dossier/nothing.example" }),
+      () => client.readResource({ uri: "meredian://dossier/nothing.example" }),
       /No dossier found with id "nothing.example"/
     );
 
@@ -125,7 +125,7 @@ test("requesting a missing company from an existing shortlist is a clear error",
     await assert.rejects(
       () =>
         client.readResource({
-          uri: `zoron://shortlist/${ids.shortlist}/company/absent.example`,
+          uri: `meredian://shortlist/${ids.shortlist}/company/absent.example`,
         }),
       /has no company with domain "absent\.example"/
     );

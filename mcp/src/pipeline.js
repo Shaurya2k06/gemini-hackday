@@ -1,5 +1,5 @@
 /**
- * Single boundary between the MCP server and the Zoron pipeline.
+ * Single boundary between the MCP server and the Meredian pipeline.
  *
  * Every tool imports pipeline functions from here rather than reaching into
  * `../../server/src/**` directly. That keeps the coupling to one file and gives

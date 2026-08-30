@@ -76,7 +76,7 @@ export function registerAuthRoutes(app) {
         res.status(500).json({ error: "Logout failed" });
         return;
       }
-      res.clearCookie("zoron.sid");
+      res.clearCookie("meredian.sid");
       res.json({ ok: true });
     });
   });

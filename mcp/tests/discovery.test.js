@@ -52,7 +52,7 @@ function discoveryPipeline(overrides = {}) {
   };
 }
 
-test("zoron_discover stores a shortlist and summarizes it compactly", async () => {
+test("meredian_discover stores a shortlist and summarizes it compactly", async () => {
   const store = new ResultStore();
   const mandateId = store.putMandate({
     structured: makeStructuredMandate(),
@@ -64,7 +64,7 @@ test("zoron_discover stores a shortlist and summarizes it compactly", async () =
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_discover",
+      name: "meredian_discover",
       arguments: { mandateId },
     });
 
@@ -73,14 +73,14 @@ test("zoron_discover stores a shortlist and summarizes it compactly", async () =
     assert.equal(result.structuredContent.count, 2);
     assert.equal(result.structuredContent.gatedCount, 1);
     assert.equal(result.structuredContent.heavySearchRan, true);
-    assert.equal(result.structuredContent.resourceUri, "zoron://shortlist/s1");
+    assert.equal(result.structuredContent.resourceUri, "meredian://shortlist/s1");
 
     // Summary lists companies but defers the full payload to the resource.
     const text = result.content[0].text;
     assert.match(text, /Alpha \(alpha\.example\)/);
     assert.match(text, /Beta \(beta\.example\)/);
     assert.match(text, /Gated Co .*listed incumbent/);
-    assert.match(text, /zoron:\/\/shortlist\/s1/);
+    assert.match(text, /meredian:\/\/shortlist\/s1/);
     assert.ok(text.length < 2000, "summary must stay compact");
 
     // The mandate's own text is used as the raw query when none is passed.
@@ -91,12 +91,12 @@ test("zoron_discover stores a shortlist and summarizes it compactly", async () =
   }
 });
 
-test("zoron_discover accepts an inline structured mandate", async () => {
+test("meredian_discover accepts an inline structured mandate", async () => {
   const { pipeline, calls } = discoveryPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_discover",
+      name: "meredian_discover",
       arguments: { structured: makeStructuredMandate(), rawQuery: "explicit query" },
     });
     assert.equal(result.structuredContent.shortlistId, "s1");
@@ -106,12 +106,12 @@ test("zoron_discover accepts an inline structured mandate", async () => {
   }
 });
 
-test("zoron_discover forwards constraintMode", async () => {
+test("meredian_discover forwards constraintMode", async () => {
   const { pipeline, calls } = discoveryPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     await client.callTool({
-      name: "zoron_discover",
+      name: "meredian_discover",
       arguments: { structured: makeStructuredMandate(), constraintMode: "lite" },
     });
     assert.equal(calls[0].args.constraintMode, "lite");
@@ -120,24 +120,24 @@ test("zoron_discover forwards constraintMode", async () => {
   }
 });
 
-test("zoron_discover requires a mandate reference", async () => {
+test("meredian_discover requires a mandate reference", async () => {
   const { pipeline } = discoveryPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     // Tool-handler throws are reported as isError results, per MCP tool
     // semantics, so the model can read the guidance and retry.
-    const missing = await client.callTool({ name: "zoron_discover", arguments: {} });
+    const missing = await client.callTool({ name: "meredian_discover", arguments: {} });
     assert.equal(missing.isError, true);
     assert.match(missing.content[0].text, /Provide either `mandateId`/);
     assert.match(missing.content[0].text, /inline `structured`/);
 
     const unknown = await client.callTool({
-      name: "zoron_discover",
+      name: "meredian_discover",
       arguments: { mandateId: "m99" },
     });
     assert.equal(unknown.isError, true);
     assert.match(unknown.content[0].text, /No mandate found with id "m99"/);
-    assert.match(unknown.content[0].text, /zoron_parse_mandate/);
+    assert.match(unknown.content[0].text, /meredian_parse_mandate/);
   } finally {
     await close();
   }
@@ -153,7 +153,7 @@ test("pipeline failures during discovery surface as recoverable errors", async (
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_discover",
+      name: "meredian_discover",
       arguments: { structured: makeStructuredMandate() },
     });
     assert.equal(result.isError, true);
@@ -163,13 +163,13 @@ test("pipeline failures during discovery surface as recoverable errors", async (
   }
 });
 
-test("zoron_discover reports progress when the client supplies a token", async () => {
+test("meredian_discover reports progress when the client supplies a token", async () => {
   const { pipeline } = discoveryPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   const seen = [];
   try {
     await client.callTool(
-      { name: "zoron_discover", arguments: { structured: makeStructuredMandate() } },
+      { name: "meredian_discover", arguments: { structured: makeStructuredMandate() } },
       undefined,
       { onprogress: (p) => seen.push(p) }
     );
@@ -183,14 +183,14 @@ test("zoron_discover reports progress when the client supplies a token", async (
 
 // --- expansion -------------------------------------------------------------
 
-test("zoron_expand_shortlist derives existing domains and continues ranks", async () => {
+test("meredian_expand_shortlist derives existing domains and continues ranks", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const { pipeline, calls } = discoveryPipeline();
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_expand_shortlist",
+      name: "meredian_expand_shortlist",
       arguments: { shortlistId, additionalCount: 2 },
     });
 
@@ -223,7 +223,7 @@ test("zoron_expand_shortlist derives existing domains and continues ranks", asyn
   }
 });
 
-test("zoron_expand_shortlist reuses the mandate the shortlist was built from", async () => {
+test("meredian_expand_shortlist reuses the mandate the shortlist was built from", async () => {
   const store = new ResultStore();
   const input = makeShortlistInput(2);
   const shortlistId = store.putShortlist(input);
@@ -231,7 +231,7 @@ test("zoron_expand_shortlist reuses the mandate the shortlist was built from", a
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     await client.callTool({
-      name: "zoron_expand_shortlist",
+      name: "meredian_expand_shortlist",
       arguments: { shortlistId },
     });
     const call = calls.find((c) => c.fn === "handleDiscoverExpandStream");
@@ -243,7 +243,7 @@ test("zoron_expand_shortlist reuses the mandate the shortlist was built from", a
   }
 });
 
-test("zoron_expand_shortlist explains an empty expansion", async () => {
+test("meredian_expand_shortlist explains an empty expansion", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(2));
   const { pipeline } = discoveryPipeline({
@@ -252,7 +252,7 @@ test("zoron_expand_shortlist explains an empty expansion", async () => {
   const { client, close } = await connectTestClient({}, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_expand_shortlist",
+      name: "meredian_expand_shortlist",
       arguments: { shortlistId },
     });
     assert.equal(result.structuredContent.addedCount, 0);
@@ -263,17 +263,17 @@ test("zoron_expand_shortlist explains an empty expansion", async () => {
   }
 });
 
-test("zoron_expand_shortlist rejects an unknown shortlist id", async () => {
+test("meredian_expand_shortlist rejects an unknown shortlist id", async () => {
   const { pipeline } = discoveryPipeline();
   const { client, close } = await connectTestClient({}, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_expand_shortlist",
+      name: "meredian_expand_shortlist",
       arguments: { shortlistId: "s99" },
     });
     assert.equal(result.isError, true);
     assert.match(result.content[0].text, /No shortlist found with id "s99"/);
-    assert.match(result.content[0].text, /zoron_discover/);
+    assert.match(result.content[0].text, /meredian_discover/);
   } finally {
     await close();
   }

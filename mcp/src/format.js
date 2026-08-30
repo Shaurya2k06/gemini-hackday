@@ -1,8 +1,8 @@
 /**
- * Compact text renderings of Zoron payloads.
+ * Compact text renderings of Meredian payloads.
  *
  * Tool results carry a readable digest; the full JSON stays behind a
- * `zoron://` resource URI so the host can fetch it only when needed.
+ * `meredian://` resource URI so the host can fetch it only when needed.
  */
 
 const MAX_SUMMARY_CHARS = 160;
@@ -87,7 +87,7 @@ export function summarizeShortlist(entry, { includeGated = true } = {}) {
   }
 
   lines.push("");
-  lines.push(`Full payload: zoron://shortlist/${entry.id}`);
+  lines.push(`Full payload: meredian://shortlist/${entry.id}`);
   return lines.join("\n");
 }
 
@@ -113,7 +113,7 @@ export function summarizeMandate(entry) {
   }
 
   lines.push("");
-  lines.push(`Full payload: zoron://mandate/${entry.id}`);
+  lines.push(`Full payload: meredian://mandate/${entry.id}`);
   return lines.join("\n");
 }
 
@@ -163,7 +163,7 @@ export function summarizeDossier(entry) {
   }
 
   lines.push("");
-  lines.push(`Full payload: zoron://dossier/${entry.domain}`);
+  lines.push(`Full payload: meredian://dossier/${entry.domain}`);
   return lines.join("\n");
 }
 

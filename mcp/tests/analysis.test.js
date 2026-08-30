@@ -36,14 +36,14 @@ function analysisPipeline(overrides = {}) {
 
 const WITH_KEY = { GEMINI_API_KEY: "sk-test-key" };
 
-test("zoron_custom_column merges researched values into the stored shortlist", async () => {
+test("meredian_custom_column merges researched values into the stored shortlist", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const { pipeline, calls } = analysisPipeline();
   const { client, close } = await connectTestClient(WITH_KEY, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "Who is the CEO?" },
     });
 
@@ -73,18 +73,18 @@ test("zoron_custom_column merges researched values into the stored shortlist", a
   }
 });
 
-test("zoron_custom_column accumulates multiple columns rather than overwriting", async () => {
+test("meredian_custom_column accumulates multiple columns rather than overwriting", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const { pipeline } = analysisPipeline();
   const { client, close } = await connectTestClient(WITH_KEY, { store, pipeline });
   try {
     await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "CEO" },
     });
     await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "HQ city" },
     });
 
@@ -97,7 +97,7 @@ test("zoron_custom_column accumulates multiple columns rather than overwriting",
   }
 });
 
-test("zoron_custom_column reports a missing API key clearly", async () => {
+test("meredian_custom_column reports a missing API key clearly", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(2));
   const { pipeline, calls } = analysisPipeline();
@@ -107,7 +107,7 @@ test("zoron_custom_column reports a missing API key clearly", async () => {
   );
   try {
     const result = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "CEO" },
     });
     assert.equal(result.isError, true);
@@ -118,21 +118,21 @@ test("zoron_custom_column reports a missing API key clearly", async () => {
   }
 });
 
-test("zoron_custom_column rejects an unknown or empty shortlist", async () => {
+test("meredian_custom_column rejects an unknown or empty shortlist", async () => {
   const store = new ResultStore();
   const emptyId = store.putShortlist({ ...makeShortlistInput(0), cards: [] });
   const { pipeline } = analysisPipeline();
   const { client, close } = await connectTestClient(WITH_KEY, { store, pipeline });
   try {
     const unknown = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId: "s99", query: "CEO" },
     });
     assert.equal(unknown.isError, true);
     assert.match(unknown.content[0].text, /No shortlist found with id "s99"/);
 
     const empty = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId: emptyId, query: "CEO" },
     });
     assert.equal(empty.isError, true);
@@ -142,14 +142,14 @@ test("zoron_custom_column rejects an unknown or empty shortlist", async () => {
   }
 });
 
-test("zoron_custom_column enforces the upstream query length limit", async () => {
+test("meredian_custom_column enforces the upstream query length limit", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(1));
   const { pipeline, calls } = analysisPipeline();
   const { client, close } = await connectTestClient(WITH_KEY, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "x".repeat(201) },
     });
     assert.equal(result.isError, true);
@@ -159,7 +159,7 @@ test("zoron_custom_column enforces the upstream query length limit", async () =>
   }
 });
 
-test("zoron_custom_column surfaces upstream validation failures", async () => {
+test("meredian_custom_column surfaces upstream validation failures", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(2));
   const { pipeline } = analysisPipeline({
@@ -172,7 +172,7 @@ test("zoron_custom_column surfaces upstream validation failures", async () => {
   const { client, close } = await connectTestClient(WITH_KEY, { store, pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "CEO" },
     });
     assert.equal(result.isError, true);
@@ -182,7 +182,7 @@ test("zoron_custom_column surfaces upstream validation failures", async () => {
   }
 });
 
-test("zoron_custom_column streams per-company progress", async () => {
+test("meredian_custom_column streams per-company progress", async () => {
   const store = new ResultStore();
   const shortlistId = store.putShortlist(makeShortlistInput(3));
   const { pipeline } = analysisPipeline();
@@ -190,7 +190,7 @@ test("zoron_custom_column streams per-company progress", async () => {
   const seen = [];
   try {
     await client.callTool(
-      { name: "zoron_custom_column", arguments: { shortlistId, query: "CEO" } },
+      { name: "meredian_custom_column", arguments: { shortlistId, query: "CEO" } },
       undefined,
       { onprogress: (p) => seen.push(p) }
     );
@@ -203,12 +203,12 @@ test("zoron_custom_column streams per-company progress", async () => {
 
 // --- general info ----------------------------------------------------------
 
-test("zoron_general_info answers without touching the discovery pipeline", async () => {
+test("meredian_general_info answers without touching the discovery pipeline", async () => {
   const { pipeline, calls } = analysisPipeline();
   const { client, close } = await connectTestClient(WITH_KEY, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_general_info",
+      name: "meredian_general_info",
       arguments: { question: "How is EBITDA adjusted in a buy-and-build?" },
     });
 
@@ -224,12 +224,12 @@ test("zoron_general_info answers without touching the discovery pipeline", async
   }
 });
 
-test("zoron_general_info rejects an empty question", async () => {
+test("meredian_general_info rejects an empty question", async () => {
   const { pipeline } = analysisPipeline();
   const { client, close } = await connectTestClient(WITH_KEY, { pipeline });
   try {
     const result = await client.callTool({
-      name: "zoron_general_info",
+      name: "meredian_general_info",
       arguments: { question: "  " },
     });
     assert.equal(result.isError, true);

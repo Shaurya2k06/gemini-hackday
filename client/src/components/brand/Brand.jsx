@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Shared Zoron brand primitives — kept in sync with the landing page so every
+ * Shared Meredian brand primitives — kept in sync with the landing page so every
  * app surface reads as one editorial system: warm cream, ink, signature red,
  * square corners, hairline borders, and mono uppercase eyebrows.
  */
@@ -41,7 +41,7 @@ export const BrandLockup = ({ light = false, onClick }) => (
   >
     <Monogram light={light} />
     <span className={`font-sans font-bold text-[15px] tracking-tight ${light ? 'text-cream' : 'text-ink'}`}>
-      Zoron
+      Meredian
     </span>
   </button>
 );

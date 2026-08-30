@@ -1,16 +1,16 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { createZoronServer } from "../../src/server.js";
+import { createMeredianServer } from "../../src/server.js";
 
 /**
- * Connect a client to an in-process Zoron server over a linked in-memory pair.
+ * Connect a client to an in-process Meredian server over a linked in-memory pair.
  *
  * Preferred over spawning the stdio entrypoint: no child-process lifecycle, and
  * it exercises the same registration code paths. The stdio wiring itself is
  * covered separately by tests/stdio.test.js.
  *
  * @param env   process.env overrides, restored on close (undefined deletes)
- * @param opts  forwarded to createZoronServer, e.g. a pre-seeded `store` or a
+ * @param opts  forwarded to createMeredianServer, e.g. a pre-seeded `store` or a
  *              stub `pipeline`
  */
 export async function connectTestClient(env = {}, opts = {}) {
@@ -21,16 +21,16 @@ export async function connectTestClient(env = {}, opts = {}) {
     else process.env[key] = value;
   }
 
-  const server = createZoronServer(opts);
+  const server = createMeredianServer(opts);
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  const client = new Client({ name: "zoron-test-client", version: "1.0.0" });
+  const client = new Client({ name: "meredian-test-client", version: "1.0.0" });
 
   await Promise.all([client.connect(clientTransport), server.connect(serverTransport)]);
 
   return {
     client,
     server,
-    store: server.zoronStore,
+    store: server.meredianStore,
     async close() {
       await client.close();
       await server.close();

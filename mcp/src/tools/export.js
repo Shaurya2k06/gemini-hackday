@@ -8,7 +8,7 @@ const FORMATS = ["csv", "pdf"];
 
 /** Where unqualified exports land. */
 function defaultExportDir() {
-  return path.join(os.tmpdir(), "zoron-exports");
+  return path.join(os.tmpdir(), "meredian-exports");
 }
 
 /**
@@ -20,7 +20,7 @@ function defaultExportDir() {
  */
 export function resolveOutputPath(outputPath, format) {
   const dir = defaultExportDir();
-  const defaultName = `zoron-shortlist-${Date.now()}.${format}`;
+  const defaultName = `meredian-shortlist-${Date.now()}.${format}`;
 
   if (!outputPath) return path.join(dir, defaultName);
   if (path.isAbsolute(outputPath)) return path.normalize(outputPath);
@@ -38,7 +38,7 @@ export function resolveOutputPath(outputPath, format) {
 
 export function registerExportTools(server, store, pipeline) {
   server.registerTool(
-    "zoron_export_shortlist",
+    "meredian_export_shortlist",
     {
       title: "Export a shortlist to CSV or PDF",
       description:
@@ -46,7 +46,7 @@ export function registerExportTools(server, store, pipeline) {
         "Any researched custom columns are included in CSV output. Defaults to a file in " +
         "the system temp directory; pass an absolute `outputPath` to choose the location.",
       inputSchema: {
-        shortlistId: z.string().describe("Id from zoron_discover, e.g. 's1'."),
+        shortlistId: z.string().describe("Id from meredian_discover, e.g. 's1'."),
         format: z
           .enum(FORMATS)
           .optional()
@@ -69,12 +69,12 @@ export function registerExportTools(server, store, pipeline) {
       },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
-    guarded("zoron_export_shortlist", async (args) => {
+    guarded("meredian_export_shortlist", async (args) => {
       const entry = store.getShortlist(args.shortlistId);
       if (!entry) {
         throw new McpError(
           ErrorCode.InvalidParams,
-          `No shortlist found with id "${args.shortlistId}". Run zoron_discover first.`
+          `No shortlist found with id "${args.shortlistId}". Run meredian_discover first.`
         );
       }
 

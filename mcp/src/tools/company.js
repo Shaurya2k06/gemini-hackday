@@ -11,14 +11,14 @@ export function registerCompanyTools(server, store, pipeline) {
 
 function registerLookup(server, store, pipeline) {
   server.registerTool(
-    "zoron_lookup_company",
+    "meredian_lookup_company",
     {
       title: "Look up one named company",
       description:
         "Resolve a single company by name and return its profile. Use this when the user asks " +
         "about one specific company rather than screening for targets — including when " +
-        "zoron_parse_mandate reports intent 'company_lookup'. For a full investor dossier, " +
-        "follow up with zoron_deep_dive.",
+        "meredian_parse_mandate reports intent 'company_lookup'. For a full investor dossier, " +
+        "follow up with meredian_deep_dive.",
       inputSchema: {
         companyName: z
           .string()
@@ -27,13 +27,13 @@ function registerLookup(server, store, pipeline) {
           .record(z.any())
           .optional()
           .describe(
-            "Optional structured context from zoron_parse_mandate to narrow the search " +
+            "Optional structured context from meredian_parse_mandate to narrow the search " +
               "(geography, sector). Omit to search on the name alone."
           ),
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    guarded("zoron_lookup_company", async (args, extra) => {
+    guarded("meredian_lookup_company", async (args, extra) => {
       const name = String(args.companyName ?? "").trim();
       if (!name) {
         throw new McpError(ErrorCode.InvalidParams, "`companyName` cannot be empty.");
@@ -83,7 +83,7 @@ function registerLookup(server, store, pipeline) {
         "",
         summarizeCard(result.card),
         "",
-        `Run zoron_deep_dive with domain "${domain}" for a full investor dossier.`,
+        `Run meredian_deep_dive with domain "${domain}" for a full investor dossier.`,
       ].join("\n");
 
       return textResult(text, {
@@ -92,7 +92,7 @@ function registerLookup(server, store, pipeline) {
         domain,
         card: result.card,
         progressEvents: bridge.count,
-        resourceUri: `zoron://dossier/${domain}`,
+        resourceUri: `meredian://dossier/${domain}`,
       });
     })
   );
@@ -145,7 +145,7 @@ function resolveDeepDiveTarget(store, args) {
     if (!entry) {
       throw new McpError(
         ErrorCode.InvalidParams,
-        `No shortlist found with id "${args.shortlistId}". Run zoron_discover first.`
+        `No shortlist found with id "${args.shortlistId}". Run meredian_discover first.`
       );
     }
     const card = store.findCard(args.shortlistId, args.domain);
@@ -179,7 +179,7 @@ function resolveDeepDiveTarget(store, args) {
 
 function registerDeepDive(server, store, pipeline) {
   server.registerTool(
-    "zoron_deep_dive",
+    "meredian_deep_dive",
     {
       title: "Open a company dossier",
       description:
@@ -214,7 +214,7 @@ function registerDeepDive(server, store, pipeline) {
       },
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
-    guarded("zoron_deep_dive", async (args, extra) => {
+    guarded("meredian_deep_dive", async (args, extra) => {
       const { company, structured } = resolveDeepDiveTarget(store, args);
       const bridge = createProgressBridge(extra);
 
@@ -253,7 +253,7 @@ function registerDeepDive(server, store, pipeline) {
         enrichmentSuccess: result.enrichmentSuccess,
         userQuestion: args.userQuestion ?? null,
         progressEvents: bridge.count,
-        resourceUri: `zoron://dossier/${domain}`,
+        resourceUri: `meredian://dossier/${domain}`,
       });
     })
   );

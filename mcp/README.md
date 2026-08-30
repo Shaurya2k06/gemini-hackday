@@ -1,6 +1,6 @@
-# Zoron MCP server
+# Meredian MCP server
 
-Exposes the Zoron PE discovery pipeline as [Model Context Protocol](https://modelcontextprotocol.io) tools, so an MCP host — Claude Desktop, Kiro, Cursor — can build mandates, run screens, and open company dossiers directly.
+Exposes the Meredian PE discovery pipeline as [Model Context Protocol](https://modelcontextprotocol.io) tools, so an MCP host — Claude Desktop, Kiro, Cursor — can build mandates, run screens, and open company dossiers directly.
 
 The server imports `server/src/chatbot` **in-process**. It does not start Express and never connects to the database, so only a Gemini key is required.
 
@@ -21,7 +21,7 @@ Register the server with your host using absolute paths:
 ```json
 {
   "mcpServers": {
-    "zoron": {
+    "meredian": {
       "command": "node",
       "args": ["/absolute/path/to/gemini-hackday/mcp/src/index.js"]
     }
@@ -29,24 +29,24 @@ Register the server with your host using absolute paths:
 }
 ```
 
-Verify the connection by calling `zoron_health`, which reports key presence, the configured models, and whether the pipeline imported cleanly.
+Verify the connection by calling `meredian_health`, which reports key presence, the configured models, and whether the pipeline imported cleanly.
 
 ## Tools
 
 | Tool | Purpose |
 |------|---------|
-| `zoron_health` | Report configuration and readiness |
-| `zoron_parse_mandate` | Turn natural-language criteria into a structured mandate → `mandateId` |
-| `zoron_parse_thesis_pdf` | Extract a mandate from an investment thesis PDF on disk |
-| `zoron_discover` | Run discovery for a mandate → ranked `shortlistId` |
-| `zoron_expand_shortlist` | Append more companies to a shortlist, excluding ones already on it |
-| `zoron_lookup_company` | Resolve one named company |
-| `zoron_deep_dive` | Build a full investor dossier for one company |
-| `zoron_custom_column` | Research one extra data point for every company on a shortlist |
-| `zoron_general_info` | Answer a general PE question without searching |
-| `zoron_export_shortlist` | Write a shortlist to CSV or PDF on disk |
+| `meredian_health` | Report configuration and readiness |
+| `meredian_parse_mandate` | Turn natural-language criteria into a structured mandate → `mandateId` |
+| `meredian_parse_thesis_pdf` | Extract a mandate from an investment thesis PDF on disk |
+| `meredian_discover` | Run discovery for a mandate → ranked `shortlistId` |
+| `meredian_expand_shortlist` | Append more companies to a shortlist, excluding ones already on it |
+| `meredian_lookup_company` | Resolve one named company |
+| `meredian_deep_dive` | Build a full investor dossier for one company |
+| `meredian_custom_column` | Research one extra data point for every company on a shortlist |
+| `meredian_general_info` | Answer a general PE question without searching |
+| `meredian_export_shortlist` | Write a shortlist to CSV or PDF on disk |
 
-Typical flow: `zoron_parse_mandate` → `zoron_discover` → `zoron_deep_dive` → `zoron_export_shortlist`.
+Typical flow: `meredian_parse_mandate` → `meredian_discover` → `meredian_deep_dive` → `meredian_export_shortlist`.
 
 ## Resources
 
@@ -54,10 +54,10 @@ Discovery payloads are large, so tools return a compact summary plus a resource 
 
 | URI | Contents |
 |-----|----------|
-| `zoron://mandate/{id}` | Structured mandate, criteria pills, intent |
-| `zoron://shortlist/{id}` | Full enriched company cards, gated matches, pipeline stages |
-| `zoron://shortlist/{id}/company/{domain}` | One company card from a shortlist |
-| `zoron://dossier/{domain}` | Deep-dive dossier with cited sources |
+| `meredian://mandate/{id}` | Structured mandate, criteria pills, intent |
+| `meredian://shortlist/{id}` | Full enriched company cards, gated matches, pipeline stages |
+| `meredian://shortlist/{id}/company/{domain}` | One company card from a shortlist |
+| `meredian://dossier/{domain}` | Deep-dive dossier with cited sources |
 
 Results live in memory for the lifetime of the server process and are capped (25 shortlists, 50 mandates, 100 dossiers), evicting least-recently-used entries.
 
@@ -68,7 +68,7 @@ Results live in memory for the lifetime of the server process and are capped (25
 
 ## Notes
 
-`zoron_discover` and `zoron_deep_dive` call the heavy search model and can take minutes. Progress is reported via MCP progress notifications when the host supplies a progress token. If your host times out, raise its per-request timeout.
+`meredian_discover` and `meredian_deep_dive` call the heavy search model and can take minutes. Progress is reported via MCP progress notifications when the host supplies a progress token. If your host times out, raise its per-request timeout.
 
 For fast offline iteration, set `SKIP_HEAVY_SEARCH=true` in `server/.env` to skip live web search.
 

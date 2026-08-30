@@ -1,9 +1,9 @@
 /**
  * In-process result store.
  *
- * Zoron payloads are large — an enriched 10-company shortlist is tens of
+ * Meredian payloads are large — an enriched 10-company shortlist is tens of
  * kilobytes of JSON. Rather than pushing that through the host's context on
- * every tool call, results are kept here and surfaced as `zoron://` resources,
+ * every tool call, results are kept here and surfaced as `meredian://` resources,
  * with tools returning a compact summary plus an ID.
  *
  * Scope is a single MCP session (one server process). Nothing is persisted.

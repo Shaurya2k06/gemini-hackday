@@ -7,18 +7,18 @@ import { makeCard, makeStructuredMandate } from "./helpers/fixtures.js";
 
 /** Every tool the server is expected to expose. */
 const EXPECTED_TOOLS = [
-  "zoron_backtest_thesis",
-  "zoron_custom_column",
-  "zoron_deep_dive",
-  "zoron_discover",
-  "zoron_expand_shortlist",
-  "zoron_export_shortlist",
-  "zoron_general_info",
-  "zoron_health",
-  "zoron_lookup_company",
-  "zoron_parse_mandate",
-  "zoron_parse_thesis_pdf",
-  "zoron_transition_score",
+  "meredian_backtest_thesis",
+  "meredian_custom_column",
+  "meredian_deep_dive",
+  "meredian_discover",
+  "meredian_expand_shortlist",
+  "meredian_export_shortlist",
+  "meredian_general_info",
+  "meredian_health",
+  "meredian_lookup_company",
+  "meredian_parse_mandate",
+  "meredian_parse_thesis_pdf",
+  "meredian_transition_score",
 ];
 
 test("the full tool surface is registered, with no extras", async () => {
@@ -69,10 +69,10 @@ test("screen_mandate prompt renders an ordered workflow", async () => {
     assert.match(text, /German industrial software, founder-owned/);
     // The prompt must name the tools in the order they should be called.
     assert.ok(
-      text.indexOf("zoron_parse_mandate") < text.indexOf("zoron_discover"),
+      text.indexOf("meredian_parse_mandate") < text.indexOf("meredian_discover"),
       "parse must be instructed before discover"
     );
-    assert.match(text, /zoron_expand_shortlist/);
+    assert.match(text, /meredian_expand_shortlist/);
   } finally {
     await close();
   }
@@ -86,7 +86,7 @@ test("company_dossier prompt threads a focused question through", async () => {
       arguments: { company: "Personio", question: "is it PE-backed?" },
     });
     const text = result.messages[0].content.text;
-    assert.match(text, /zoron_lookup_company/);
+    assert.match(text, /meredian_lookup_company/);
     assert.match(text, /userQuestion: "is it PE-backed\?"/);
   } finally {
     await close();
@@ -135,39 +135,39 @@ test("end-to-end: discover, deep dive, custom column, export", async () => {
   let exportedPath;
   try {
     const parsed = await client.callTool({
-      name: "zoron_parse_mandate",
+      name: "meredian_parse_mandate",
       arguments: { text: "european b2b saas, founder-owned" },
     });
     const { mandateId } = parsed.structuredContent;
     assert.equal(mandateId, "m1");
 
     const discovered = await client.callTool({
-      name: "zoron_discover",
+      name: "meredian_discover",
       arguments: { mandateId },
     });
     const { shortlistId } = discovered.structuredContent;
     assert.equal(discovered.structuredContent.count, 2);
 
     // The shortlist is reachable as a resource.
-    const resource = await client.readResource({ uri: `zoron://shortlist/${shortlistId}` });
+    const resource = await client.readResource({ uri: `meredian://shortlist/${shortlistId}` });
     assert.equal(JSON.parse(resource.contents[0].text).cards.length, 2);
 
     const dive = await client.callTool({
-      name: "zoron_deep_dive",
+      name: "meredian_deep_dive",
       arguments: { shortlistId, domain: "alpha.example" },
     });
     assert.equal(dive.structuredContent.domain, "alpha.example");
-    const dossier = await client.readResource({ uri: "zoron://dossier/alpha.example" });
+    const dossier = await client.readResource({ uri: "meredian://dossier/alpha.example" });
     assert.equal(JSON.parse(dossier.contents[0].text).enrichmentSuccess, true);
 
     const column = await client.callTool({
-      name: "zoron_custom_column",
+      name: "meredian_custom_column",
       arguments: { shortlistId, query: "CEO" },
     });
     assert.equal(column.structuredContent.resolvedCount, 2);
 
     const exported = await client.callTool({
-      name: "zoron_export_shortlist",
+      name: "meredian_export_shortlist",
       arguments: { shortlistId, format: "csv" },
     });
     exportedPath = exported.structuredContent.path;

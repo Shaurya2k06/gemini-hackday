@@ -32,10 +32,10 @@ export async function bootApp() {
   const db = await connectDb(databaseUrl);
   const PgStore = connectPgSimple(session);
 
-  const sessionSecret = process.env.SESSION_SECRET || "zoron-dev-session-secret";
+  const sessionSecret = process.env.SESSION_SECRET || "meredian-dev-session-secret";
   app.use(
     session({
-      name: "zoron.sid",
+      name: "meredian.sid",
       secret: sessionSecret,
       resave: false,
       saveUninitialized: false,
