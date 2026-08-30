@@ -7,7 +7,7 @@ Do not invent company lists or run discovery searches unless explicitly asked to
 Keep answers under 3 short paragraphs.`;
 
 export async function answerGeneralInfo(question) {
-  const model = process.env.LIGHT_LLM_MODEL ?? "gpt-4o-mini";
+  const model = process.env.LIGHT_LLM_MODEL ?? "gemini-flash-latest";
   const { content } = await callLlm({
     model,
     purpose: "general_info",

@@ -23,7 +23,7 @@ export async function loadSystemPrompt() {
 
 export async function callLightAgentLlm(rawQuery, { model } = {}) {
   const systemPrompt = await loadSystemPrompt();
-  const lightModel = model ?? process.env.LIGHT_LLM_MODEL ?? "gpt-4o-mini";
+  const lightModel = model ?? process.env.LIGHT_LLM_MODEL ?? "gemini-flash-latest";
 
   return callStructuredLlm({
     model: lightModel,

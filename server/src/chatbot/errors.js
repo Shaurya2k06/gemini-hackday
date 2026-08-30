@@ -12,7 +12,7 @@ export function mapPipelineError(error, _rawQuery = "") {
     );
   }
 
-  if (/OPENAI_API_KEY|API key/i.test(msg)) {
+  if (/GEMINI_API_KEY|API key/i.test(msg)) {
     return "Market research is temporarily unavailable. Please try again shortly.";
   }
 

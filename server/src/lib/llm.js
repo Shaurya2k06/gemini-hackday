@@ -1,35 +1,75 @@
-import OpenAI from "openai";
 import { logger } from "./logger.js";
 
-let client;
+function getApiKey() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+  return apiKey;
+}
 
-function getClient() {
-  if (!client) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not set");
+function splitMessages(messages) {
+  const system = messages
+    .filter(({ role }) => role === "system")
+    .map(({ content }) => String(content ?? ""))
+    .join("\n\n");
+  const contents = messages
+    .filter(({ role }) => role !== "system")
+    .map(({ role, content }) => ({
+      role: role === "assistant" ? "model" : "user",
+      parts: [{ text: String(content ?? "") }],
+    }));
+  return { systemInstruction: system || undefined, contents };
+}
+
+async function generateContent({ model, messages, maxTokens, schema, search = false }) {
+  const { systemInstruction, contents } = splitMessages(messages);
+  const body = {
+    ...(systemInstruction ? { systemInstruction: { parts: [{ text: systemInstruction }] } } : {}),
+    contents,
+    generationConfig: {
+      maxOutputTokens: maxTokens,
+      ...(schema ? { responseMimeType: "application/json", responseSchema: schema } : {}),
+    },
+    ...(search ? { tools: [{ googleSearch: {} }] } : {}),
+  };
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-goog-api-key": getApiKey(),
+      },
+      body: JSON.stringify(body),
     }
-    client = new OpenAI({ apiKey });
+  );
+  const payload = await response.json();
+  if (!response.ok) {
+    const error = new Error(payload.error?.message ?? `Gemini request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
-  return client;
+  return payload;
+}
+
+function responseText(response) {
+  return response.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
 }
 
 export async function callLlm({ model, messages, purpose, maxTokens = 64 }) {
-  const openai = getClient();
   const start = Date.now();
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await generateContent({
       model,
       messages,
-      max_tokens: maxTokens,
+      maxTokens,
     });
 
     const latencyMs = Date.now() - start;
-    const content = response.choices[0]?.message?.content ?? "";
+    const content = responseText(response);
 
     logger.externalCall({
-      source: "openai",
+      source: "gemini",
       query: purpose,
       status: 200,
       latencyMs,
@@ -42,7 +82,7 @@ export async function callLlm({ model, messages, purpose, maxTokens = 64 }) {
     const status = error.status ?? 500;
 
     logger.externalCall({
-      source: "openai",
+      source: "gemini",
       query: purpose,
       status,
       latencyMs,
@@ -61,28 +101,20 @@ export async function callStructuredLlm({
   schema,
   schemaName,
 }) {
-  const openai = getClient();
   const start = Date.now();
 
   try {
-    const response = await openai.chat.completions.create({
+    const response = await generateContent({
       model,
       messages,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: schemaName,
-          strict: true,
-          schema,
-        },
-      },
+      schema,
     });
 
     const latencyMs = Date.now() - start;
-    const content = response.choices[0]?.message?.content ?? "";
+    const content = responseText(response);
 
     logger.externalCall({
-      source: "openai",
+      source: "gemini",
       query: purpose,
       status: 200,
       latencyMs,
@@ -95,7 +127,7 @@ export async function callStructuredLlm({
     const status = error.status ?? 500;
 
     logger.externalCall({
-      source: "openai",
+      source: "gemini",
       query: purpose,
       status,
       latencyMs,
@@ -107,8 +139,19 @@ export async function callStructuredLlm({
   }
 }
 
+export async function callGeminiSearch({ model, messages, purpose, maxTokens = 4096 }) {
+  const start = Date.now();
+  try {
+    const response = await generateContent({ model, messages, maxTokens, search: true });
+    return { content: responseText(response), model, latencyMs: Date.now() - start };
+  } catch (error) {
+    error.purpose = purpose;
+    throw error;
+  }
+}
+
 export async function verifyLightModel() {
-  const model = process.env.LIGHT_LLM_MODEL ?? "gpt-4o-mini";
+  const model = process.env.LIGHT_LLM_MODEL ?? "gemini-flash-latest";
   return callLlm({
     model,
     purpose: "stage0_hello_light",
@@ -122,11 +165,9 @@ export async function verifyLightModel() {
 }
 
 export async function verifyHeavyModel() {
-  const model = process.env.HEAVY_LLM_MODEL ?? "gpt-5-search-api";
-  // Search models always search; use a tiny non-search reply when possible.
-  // Fall back to plain completion for hello-world verification.
+  const model = process.env.HEAVY_LLM_MODEL ?? "gemini-flash-latest";
   return callLlm({
-    model: model.includes("search") ? "gpt-4o-mini" : model,
+    model,
     purpose: "stage0_hello_heavy",
     messages: [
       {

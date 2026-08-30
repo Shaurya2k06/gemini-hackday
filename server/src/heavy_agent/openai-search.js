@@ -1,9 +1,9 @@
 /**
  * Primary cold-start discovery via OpenAI gpt-5-search-api (Chat Completions).
  */
-import OpenAI from "openai";
 import { logger } from "../lib/logger.js";
 import { parseLlmJson, extractJsonObject } from "../lib/parse-llm-json.js";
+import { callGeminiSearch } from "../lib/llm.js";
 import { normalizeCompanyDomain } from "./domain-blocklist.js";
 import { FUNDING_STAGES } from "../light_agent/schema.js";
 import {
@@ -25,19 +25,8 @@ const DEFAULT_LIMIT = 8;
 const VALID_STAGES = new Set(FUNDING_STAGES);
 const RETRY_DELAY_MS = 1200;
 
-let client;
-
-function getClient() {
-  if (!client) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
-    client = new OpenAI({ apiKey });
-  }
-  return client;
-}
-
 export function getHeavySearchModel() {
-  return process.env.HEAVY_LLM_MODEL ?? "gpt-5-search-api";
+  return process.env.HEAVY_LLM_MODEL ?? "gemini-flash-latest";
 }
 
 function sleep(ms) {
@@ -296,7 +285,6 @@ function toResult(raw) {
 async function runDiscoveryAttempt(structured, { limit, onProgress, broader = false, excludeDomains = [], fillPass = false, constraintMode = "heavy" } = {}) {
   const model = getHeavySearchModel();
   const start = Date.now();
-  const openai = getClient();
   const lite = isLiteMode(constraintMode);
   const prompt = buildDiscoveryPrompt(structured, limit, {
     broader: broader || lite,
@@ -310,8 +298,9 @@ async function runDiscoveryAttempt(structured, { limit, onProgress, broader = fa
     : "You are a PE deal-sourcing research agent. Use web search to find real companies matching the mandate. Return strict JSON only.";
 
   try {
-    const response = await openai.chat.completions.create({
+    const { content } = await callGeminiSearch({
       model,
+      purpose: "heavy_gemini_web_search",
       messages: [
         {
           role: "system",
@@ -319,10 +308,8 @@ async function runDiscoveryAttempt(structured, { limit, onProgress, broader = fa
         },
         { role: "user", content: prompt },
       ],
-      web_search_options: {},
     });
 
-    const content = response.choices?.[0]?.message?.content ?? "";
     const { parsed, repaired } = parseLlmJson(content);
     const list = Array.isArray(parsed.companies) ? parsed.companies : [];
     const results = list.map(toResult).filter(Boolean).slice(0, limit);

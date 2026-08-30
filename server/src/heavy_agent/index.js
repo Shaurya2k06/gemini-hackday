@@ -28,7 +28,7 @@ export async function runHeavySearch(
   const outcomes = [];
   let openaiOutcome = null;
 
-  if (!skipOpenAISearch && process.env.OPENAI_API_KEY) {
+  if (!skipOpenAISearch && process.env.GEMINI_API_KEY) {
     openaiOutcome = await searchViaOpenAI(structured, {
       limit: openAILimit,
       onProgress,
@@ -53,7 +53,7 @@ export async function runHeavySearch(
       results: [],
       method: skipOpenAISearch ? "skipped" : "skipped_no_api_key",
       latencyMs: 0,
-      error: skipOpenAISearch ? null : "OPENAI_API_KEY not set",
+      error: skipOpenAISearch ? null : "GEMINI_API_KEY not set",
       perSourceDistinctCount: 0,
       resultsRawCount: 0,
     };
